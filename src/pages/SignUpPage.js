@@ -6,10 +6,10 @@ import '../styles/App.css';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 export const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false); // add state for admin
 
   const navigate = useNavigate();
 
@@ -19,15 +19,25 @@ export const SignUpPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log(userCredential);
       const user = userCredential.user;
+
+      // Make signup account admin
+      if (isAdmin) {
+        // Assign admin role
+        await setCustomClaim(user, { admin: true });
+      }
+
       localStorage.setItem('token', user.accessToken);
       localStorage.setItem('user', JSON.stringify(user));
-      // Clear the email and password fields
       setEmail('');
       setPassword('');
       navigate("/");
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const setCustomClaim = async (user, claims) => {
+    // idk what to put here
   };
 
   return (
@@ -54,6 +64,16 @@ export const SignUpPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+          </div>
+          <div className="general-input-box">
+            <label>
+              Sign up as admin:
+              <input
+                type="checkbox"
+                checked={isAdmin}
+                onChange={() => setIsAdmin(!isAdmin)}
+              />
+            </label>
           </div>
           <Button variant="secondary" type="submit" className='signup-button'>Signup</Button>
         </form>

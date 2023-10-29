@@ -1,4 +1,3 @@
-import '../styles/App.css';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { auth } from "../configuration/firebase";
@@ -12,7 +11,6 @@ export const LoginPage = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
-
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setUser(user);
@@ -24,22 +22,31 @@ export const LoginPage = () => {
     const signIn = async () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user
+            const user = userCredential.user;
             localStorage.setItem('token', user.accessToken);
             localStorage.setItem('user', JSON.stringify(user));
-            setEmail("");
-            setPassword("");
-            navigate("/");
+
+            // Check if is admin
+            if (userClaimIsAdmin(user)) {
+                navigate("/admin-dashboard"); // admin page
+            } else {
+                navigate("/user-dashboard"); // user page
+            }
         } catch (err) {
             console.error(err);
         }
     };
 
+    const userClaimIsAdmin = (user) => {
+        // Check if is admin
+        return user && user.customClaims && user.customClaims.admin === true;
+    };
+
     const logout = async () => {
         try {
             await signOut(auth);
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
         } catch (err) {
             console.error(err);
         }
