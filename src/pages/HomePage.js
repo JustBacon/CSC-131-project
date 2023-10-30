@@ -5,8 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useContext } from "react";
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { DeviceNameInput } from '../component/deviceNameInput';
+import { getAuth, signOut } from 'firebase/auth';
+import { auth } from '../configuration/firebase';
+import { useNavigate } from 'react-router-dom';
 
 
 export const { client } = vendiaClient();
@@ -15,6 +18,15 @@ export const HomePage = () => {
 
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [device, setDevice] = useContext(DataContext).device
+  const user = auth.currentUser;
+  const navigate = useNavigate();
+
+  //show the user signed in as
+  if(user){
+    console.log('Signed in as: ', user.displayName);
+  } else {
+    console.log('No user signed in');
+  }
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
@@ -42,9 +54,35 @@ export const HomePage = () => {
     setDeviceList(listDeviceResponse?.items);
   }
 
+  //function to sign out
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        console.log('User signed out');
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        //sends them to login page
+        navigate('/login');
+      })
+      .catch((error) => {
+        // An error happened.
+        console.error(error);
+      });
+  };
+
   return (
     <div>
-      <div><h1 className="title-header"><img src="AlgorithmAlliesLogo.png"/>Algorithm Allies Team 6</h1></div>
+      <div>
+        <h1 className="title-header">
+          <img src="AlgorithmAlliesLogo.png"/>
+          Algorithm Allies Team 6
+          <div className="sign-out-button-header-div">
+            <Button id="sign-out-button" variant="danger" onClick={handleSignOut}>Sign out</Button>
+            {user ? (<p className='user-signed-in-email'>Signed in as : {user.email}</p>) : <p className='user-signed-in-email'>Not signed in</p>}
+          </div>
+        </h1>
+      </div>
       <div><h2 id="subtitle-name">Device List:</h2></div>
       <div id="search-for-device">
         <input id="search-for-device-input"
