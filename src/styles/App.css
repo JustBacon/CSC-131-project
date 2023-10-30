@@ -279,12 +279,24 @@
 .sign-out-button-header-div {
   display: flex;
   justify-content: flex-end;
+  position: fixed;
+  right: 15%;
   padding: 10px 0;
 }
-#sign-out-button {
-  
-}
 
+.show-user-email-before-hovering {
+  display: flex;
+  justify-content: flex-end;
+  position: fixed;
+  right: 3%;
+  font-size: small;
+  padding-top: 0%;
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 200 !important;
+  color: rgb(235, 235, 235);
+  font-size: 15px;
+  margin-top: 5px;
+}
 
 .user-signed-in-email {
   opacity: 0;
@@ -299,7 +311,7 @@
   height: 90px;
   position: fixed;
   justify-content: flex-end !important;
-  top: 0;
+  top: 8%;
   right: 0;
   align-items: center;
   background-color: #fff;
@@ -319,7 +331,7 @@
   height: 90px;
   position: fixed;
   justify-content: flex-end !important;
-  top: 0;
+  top: 8%;
   right: 0;
   align-items: center;
   background-color: #fff;

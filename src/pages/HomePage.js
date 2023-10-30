@@ -81,6 +81,7 @@ export const HomePage = () => {
             <Button id="sign-out-button" variant="danger" onClick={handleSignOut}>Sign out</Button>
             {user ? (<p className='user-signed-in-email'>Signed in as : {user.email}</p>) : <p className='user-signed-in-email'>Not signed in</p>}
           </div>
+          <div className='show-user-email-before-hovering'><p>See who is signed in</p></div>
         </h1>
       </div>
       <div><h2 id="subtitle-name">Device List:</h2></div>
