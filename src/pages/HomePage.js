@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/App.css';
 import { Button, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,6 +15,7 @@ export const HomePage = () => {
 
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [device, setDevice] = useContext(DataContext).device
+  const [searchDeviceInput, setSearchDeviceInput] = useState("")
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
@@ -42,17 +43,38 @@ export const HomePage = () => {
     setDeviceList(listDeviceResponse?.items);
   }
 
+  const searchDevice = async (value) => {
+    const checkDeviceName = await client.entities.device.list({
+      filter: {
+        Device: {
+          contains: value
+        }
+      }
+    })
+    console.log(checkDeviceName.items)
+    setDeviceList(checkDeviceName.items)
+  }
+
+  const handleSearchChange = (event) => {
+    setSearchDeviceInput(event.target.value);
+    searchDevice(event.target.value);
+  }
+
   return (
     <div>
-      <div><h1 className="title-header"><img src="AlgorithmAlliesLogo.png"/>Algorithm Allies Team 6</h1></div>
       <div><h2 id="subtitle-name">Device List:</h2></div>
       <div id="search-for-device">
-        <input id="search-for-device-input"
-          type="text"
-          name="deviceName"
-          placeholder="Device Name"
-        />
-        <Button id="search-for-device-button" variant="primary">Search</Button>
+        <form autoComplete="off">
+
+          <input id="search-for-device-input"
+            type="text"
+            name="deviceName"
+            placeholder="Device Name"
+            onChange={handleSearchChange}
+            value={searchDeviceInput}
+          />
+          <Button id="search-for-device-button" variant="primary">Search</Button>
+        </form>
       </div>
       <div className="container">
         {deviceList?.map((item, index) => (
@@ -69,10 +91,9 @@ export const HomePage = () => {
               <Button className="button-shadow-effects" variant="secondary">View Test</Button>
             </Link>
           </div>
-        )
-        )}
+        ))}
         <div className="item-box">
-          <DeviceNameInput id="add-device-input"/>
+          <DeviceNameInput id="add-device-input" />
           <Button id="add-device-button" variant="primary" onClick={addDevice}>+</Button>
         </div>
       </div>

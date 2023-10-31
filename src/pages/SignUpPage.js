@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { auth } from '../configuration/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/App.css';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { AuthContext } from '../context/AuthContext';
 
 
 export const SignUpPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useContext(AuthContext).email;
+  const [password, setPassword] = useContext(AuthContext).password;
 
   const navigate = useNavigate();
 
@@ -32,7 +33,6 @@ export const SignUpPage = () => {
 
   return (
     <div>
-      <div><h1 className="title-header">Algorithm Allies Team 6</h1></div>
       <div><h2 id="subtitle-name">Signup Page</h2></div>
       <div className="signup-page-content">
         <p className="general-div">Please enter your email and a password</p>

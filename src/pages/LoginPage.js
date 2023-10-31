@@ -3,23 +3,15 @@ import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { auth } from "../configuration/firebase";
 import { getAuth, createUserWithEmailAndPassword, signOut, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 export const LoginPage = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [user, setUser] = useState(null);
+    const [email, setEmail] = useContext(AuthContext).email;
+    const [password, setPassword] = useContext(AuthContext).password;
+    const [user, setUser] = useContext(AuthContext).user;
     const navigate = useNavigate();
-
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const signIn = async () => {
         try {
@@ -29,51 +21,50 @@ export const LoginPage = () => {
             localStorage.setItem('user', JSON.stringify(user));
             setEmail("");
             setPassword("");
-            navigate("/");
         } catch (err) {
             console.error(err);
         }
     };
 
-    const logout = async () => {
-        try {
-            await signOut(auth);
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    const logoutButton = useContext(AuthContext).logoutButton
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await signIn();
+        navigate("/");
+    }
 
     return (
         <div>
-            <div><h1 className="title-header">Algorithm Allies Team 6</h1></div>
-            <div><h2 id="subtitle-name">Login Page</h2></div>
+            <h2 id="subtitle-name">Login Page</h2>
             <div className="signup-page-content">
-            <div className="general-input-box">
-                <input
-                    placeholder="Email..."
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-            </div>
-            <div className="general-input-box">
-                <input
-                    placeholder="Password..."
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
-            <Button variant="secondary" className="signup-button" onClick={signIn}> Sign In</Button>
-            <Button variant="secondary" className="signup-button" onClick={logout}> Logout </Button>
-            <div className="general-div">
-                {user ? (
-                    <p>You are logged in as {user.email}</p>
-                ) : (
-                    <p>You are not logged in</p>
-                )}
-            </div>
+                <form onSubmit={handleSubmit}>
+
+                    <input
+                        placeholder="Email..."
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+
+
+                    <input
+                        placeholder="Password..."
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                    { !user && <Button type="submit" variant="secondary" className="signup-button"> Sign In</Button>}
+                    { user && <Button type="button" variant="secondary" className="signup-button" onClick={logoutButton}> Logout </Button>}
+                </form>
+
+                <div className="general-div">
+                    {user ? (
+                        <p>You are logged in as {user.email}</p>
+                    ) : (
+                        <p>You are not logged in. <Link to="/signup">Signup</Link></p>
+                    )}
+                </div>
             </div>
         </div>
     );

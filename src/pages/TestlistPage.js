@@ -139,9 +139,28 @@ export const TestlistPage = () => {
 
   return (
     <div className="test-list-page">
-      <div><h1 className="title-header">Algorithm Allies Team 6</h1></div>
       <div><h2 id="subtitle-name">Test List for: {deviceName}</h2></div>
       <div className="test-list-data">
+      <div id="search-for-device">
+        <form autoComplete="off">
+
+          <input id="search-for-device-input"
+            type="text"
+            name="testName"
+            placeholder="Test Name"
+          />
+          <select name="device">
+                {/* {deviceList?.map((item, index) => (
+                    <option key={index} value={item.Device}>{item.Device}</option>
+                )
+                )} */}
+                <option>test1</option>
+                <option>test1</option>
+                <option>test1</option>
+          </select>
+          <Button id="search-for-device-button" variant="primary">Search</Button>
+        </form>
+      </div>
         <Box sx={{ height: 400, width: '100%', borderColor: 'primary.dark', '& .MuiDataGrid-cell:hover': {color: 'primary.main'} }} >
           <Container>
 

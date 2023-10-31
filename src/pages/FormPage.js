@@ -149,7 +149,6 @@ export const FormPage = () => {
 
     return (
         <div>
-            <div><h1 className="title-header">Algorithm Allies Team 6</h1></div>
             <div><h2 id="subtitle-name">Form Page: add a Test</h2></div>
             <div>
                 <form autoComplete="off" onSubmit={handleSubmit}>

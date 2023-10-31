@@ -39,22 +39,24 @@ export const DataProvider = ({ children }) => {
     listDevice();
   }, [])
 
+  const dataValue = {
+    device: [device, setDevice], 
+    testID: [testID, setTestID], 
+    testList: [testList, setTestList],
+    orgAssignment: [orgAssignment, setOrgAssignment],
+    testName: [testName, setTestName],
+    testMethod: [testMethod, setTestMethod],
+    notes: [notes, setNotes],
+    completed: [completed, setCompleted],
+    updatedBy: [updatedBy, setUpdatedBy],
+    status: [status, setStatus],
+    progress: [progress, setProgress],
+    deviceList: [deviceList, setDeviceList]
+  }
+
   return (
     <div>
-      <DataContext.Provider value={{ 
-        device: [device, setDevice], 
-        testID: [testID, setTestID], 
-        testList: [testList, setTestList],
-        orgAssignment: [orgAssignment, setOrgAssignment],
-        testName: [testName, setTestName],
-        testMethod: [testMethod, setTestMethod],
-        notes: [notes, setNotes],
-        completed: [completed, setCompleted],
-        updatedBy: [updatedBy, setUpdatedBy],
-        status: [status, setStatus],
-        progress: [progress, setProgress],
-        deviceList: [deviceList, setDeviceList]
-        }}>
+      <DataContext.Provider value={dataValue}>
         {children}
       </DataContext.Provider>
     </div>
