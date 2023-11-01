@@ -7,9 +7,6 @@ import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Link } from 'react-router-dom';
 import { DeviceNameInput } from '../component/deviceNameInput';
-import { onSnapshot, collection } from 'firebase/firestore';
-import { db } from "../configuration/firebase"
-
 
 export const { client } = vendiaClient();
 
@@ -18,12 +15,6 @@ export const HomePage = () => {
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [device, setDevice] = useContext(DataContext).device
   const [searchDeviceInput, setSearchDeviceInput] = useState("")
-
-  const testingButton = () => {
-    onSnapshot(collection(db, "users"), (snapshot) =>{
-      console.log(snapshot.docs[0].data());
-    })
-  }
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
@@ -109,7 +100,6 @@ export const HomePage = () => {
 
   return (
     <div>
-      <button onClick={testingButton}>test</button>
       <div><h2 id="subtitle-name">Device List:</h2></div>
       <div id="search-for-device">
         <form autoComplete="off">
