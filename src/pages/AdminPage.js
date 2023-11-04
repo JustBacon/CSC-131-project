@@ -1,5 +1,5 @@
 import React from 'react';
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Form, Link } from 'react-router-dom';
@@ -17,15 +17,22 @@ export const { client } = vendiaClient();
 export const AdminPage = () => {
     const navigate = useNavigate();
     const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
+    const [orgName, setOrgName] = useState('');
 
     //creating an organization
-    const createOrganization = async() => {
+    const handleCreateOrg = async () => {
         const docRef = doc(db, "organization", "orgList");
         await updateDoc(docRef, {
-            orgs: arrayUnion('orgC')
+            orgs: arrayUnion(orgName)
         })
+    };
+
+
+    //also makes the text lowercase
+    const handleInputChange = (event) => {
+        setOrgName(event.target.value.toLowerCase());
     }
-    createOrganization();
+
 
     /*
     //just for ref
@@ -72,9 +79,16 @@ export const AdminPage = () => {
                 {isAdmin ? 
                 <>
                     <h1>AdminPage</h1>
-                    <Form>
-                        
-                    </Form>
+                    <form>                   
+                        <input id="search-for-device-input"
+                            type="text"
+                            placeholder="Organization Name"
+                            onChange={handleInputChange}
+                            autoComplete='off'
+                            onSubmit={handleCreateOrg}
+                        />
+                        <Button onClick={() => handleCreateOrg()}>Create Organization</Button>
+                    </form>
                 </>
                  :
                 <>
