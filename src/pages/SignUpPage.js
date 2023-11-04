@@ -16,11 +16,6 @@ export const SignUpPage = () => {
 
   const navigate = useNavigate();
 
-  const testingButton = async() => {
-    
-    console.log(auth.currentUser.uid);
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -43,7 +38,6 @@ export const SignUpPage = () => {
 
   return (
     <div>
-      <button onClick={testingButton}>test</button>
       <div><h2 id="subtitle-name">Signup Page</h2></div>
       <div className="signup-page-content">
         <p className="general-div">Please enter your email and a password</p>

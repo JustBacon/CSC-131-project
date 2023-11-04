@@ -42,6 +42,7 @@ export const LoginPage = () => {
             <h2 id="subtitle-name">Login Page</h2>
             <div className="signup-page-content">
                 <form onSubmit={handleSubmit}>
+                    {!user && <>
                     <input
                         placeholder="Email..."
                         value={email}
@@ -53,6 +54,9 @@ export const LoginPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    </>
+}
+
                     {error && <p className="error-message">{error}</p>}
                     {!user && <Button type="submit" variant="secondary" className="signup-button">Sign In</Button>}
                     {user && <Button type="button" variant="secondary" className="signup-button" onClick={logoutButton}>Logout</Button>}
