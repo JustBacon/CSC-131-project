@@ -1,5 +1,5 @@
 import React from 'react';
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Form, Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ export const AdminPage = () => {
     const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
     const [orgName, setOrgName] = useState('');
 
+
     //creating an organization
     const handleCreateOrg = async () => {
         const docRef = doc(db, "organization", "orgList");
@@ -27,13 +28,27 @@ export const AdminPage = () => {
         })
     };
 
+    //get the orgList and if orgName is in orgList then tell the user their org wasnt made
+    
+    //show the user a message they created an org
+
 
     //also makes the text lowercase
     const handleInputChange = (event) => {
         setOrgName(event.target.value.toLowerCase());
     }
 
-
+    const showIfIsNotAdmin = () => {
+        if(!isAdmin){
+            return (
+                <div>
+                    <h1>You are not an admin</h1>
+                    <h1>Cannot Access !!!!!!!!</h1>
+                    <Button variant='secondary' onClick={ () => navigate('/') }>Go home</Button>
+                </div>
+            )
+        }
+    }
     /*
     //just for ref
     const checkIfAdmin = async() => {
@@ -87,14 +102,12 @@ export const AdminPage = () => {
                             autoComplete='off'
                             onSubmit={handleCreateOrg}
                         />
-                        <Button onClick={() => handleCreateOrg()}>Create Organization</Button>
+                        <Button type="submit" onClick={() => handleCreateOrg()}>Create Organization</Button>
                     </form>
                 </>
                  :
-                <>
-                    <h1>You are not an admin</h1>
-                    <h1>Cannot Access !!!!!!!!</h1>
-                    <Button variant='secondary' onClick={ () => navigate('/') }>Go home</Button>
+                <> 
+                    {showIfIsNotAdmin()}
                 </>
                 }
             </div>
