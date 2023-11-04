@@ -5,8 +5,8 @@ import { Button } from 'react-bootstrap';
 
 export const NavBar = () => {
     const [user, setUser] = useContext(AuthContext).user;
-    const logoutButton = useContext(AuthContext).logoutButton
-
+    const logoutButton = useContext(AuthContext).logoutButton;
+    const [userRole, setUserRole] = useContext(AuthContext).userRole;
     const navigate = useNavigate();
 
     return (
@@ -18,6 +18,7 @@ export const NavBar = () => {
                 <li className="flex-row">
                     <img src="AlgorithmAlliesLogo.png" />
                     <h1>Algorithm Allies Team 6</h1>
+                    <div>Role: { userRole }</div>
                 </li>
                 <li>
                     {!user && <Link to="/login">Login</Link>}
