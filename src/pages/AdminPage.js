@@ -1,5 +1,5 @@
 import React from 'react';
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Form, Link } from 'react-router-dom';
@@ -16,9 +16,9 @@ export const { client } = vendiaClient();
 
 export const AdminPage = () => {
     const navigate = useNavigate();
+    const inputRef = useRef(null);
     const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
     const [orgName, setOrgName] = useState('');
-
 
     //creating an organization
     const handleCreateOrg = async () => {
@@ -26,14 +26,14 @@ export const AdminPage = () => {
             const docRef = doc(db, "organization", "orgList");
             await updateDoc(docRef, {
             orgs: arrayUnion(orgName)
-        })
+        });
             console.log("button clicked");
-        } catch(e){
+            //reset input field value
+            setOrgName("");
+        } catch(error){
             console.log("error, button not working");
         }
-        
     };
-
     //get the orgList and if orgName is in orgList then tell the user their org wasnt made
     
     //show the user a message they created an org
@@ -42,7 +42,7 @@ export const AdminPage = () => {
     //also makes the text lowercase
     const handleInputChange = (event) => {
         setOrgName(event.target.value.toLowerCase());
-    }
+    };
 
     /*
     //just for ref
@@ -89,12 +89,21 @@ export const AdminPage = () => {
                 {isAdmin ? 
                 <>
                     <h1>AdminPage</h1>
-                    <form>                   
-                        <input id="search-for-device-input"
+                    <form onSubmit={handleCreateOrg}>                   
+                        <input 
+                            id="search-for-device-input"
                             type="text"
                             placeholder="Organization Name"
+                            value={orgName}
                             onChange={handleInputChange}
                             autoComplete='off'
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if(e.key === "Enter"){
+                                    e.preventDefault();
+                                    handleCreateOrg();
+                                }
+                            }}
                         />
                         <Button onClick={() => handleCreateOrg()}>Create Organization</Button>
                     </form>
