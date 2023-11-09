@@ -30,6 +30,7 @@ export const AdminPage = () => {
             console.log("button clicked");
             //reset input field value
             setOrgName("");
+            alert("You have created a new organization");
         } catch(error){
             console.log("error, button not working");
         }
