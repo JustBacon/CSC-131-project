@@ -9,7 +9,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { db } from '../configuration/firebase'
-import { doc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, getDocs, arrayUnion, collection } from 'firebase/firestore';
 
 
 export const { client } = vendiaClient();
@@ -18,7 +18,8 @@ export const AdminPage = () => {
     const navigate = useNavigate();
     const inputRef = useRef(null);
     const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
-    const [orgName, setOrgName] = useState('');
+    const [orgName, setOrgName] = useState("");
+    //going to need a variable for lastOrgName for better bounds checking
 
     //creating an organization
     const handleCreateOrg = async () => {
@@ -28,17 +29,81 @@ export const AdminPage = () => {
             orgs: arrayUnion(orgName)
         });
             console.log("button clicked");
-            //reset input field value
-            setOrgName("");
-            alert("New organization created: " + orgName);
+            
         } catch(error){
-            console.log("error, button not working");
+            alert("Failed to add: " + orgName + ".\n\nTry another name");
+        }
+
+        //show message if org was added to the orgs database
+        const orgSuccessfullyAdded = await compareLastOrgAdded();
+        if(orgSuccessfullyAdded) {
+            alert("Successfully added: " + orgName);
+        } else {
+            alert("Failed to add: " + orgName + ".\n\nTry another name");
+        }
+        
+        showOrgNames();
+    };
+
+    //console.logs all the org names in the array orgs
+    const showOrgNames = async () => {
+        try {
+          const docRef = doc(db, "organization", "orgList");
+          const docSnap = await getDoc(docRef);
+      
+          if (docSnap.exists()) {
+            // Log the entire array of organization names
+            const orgsArray = docSnap.data().orgs;
+            console.log("Organization Names:", orgsArray);
+          } else {
+            console.log("Document 'orgList' not found");
+          }
+        } catch (error) {
+          console.error("Error fetching orgList:", error);
         }
     };
-    //get the orgList and if orgName is in orgList then tell the user their org wasnt made
-    
-    //show the user a message they created an org
 
+    //get the last org added. this will be used to alert the user if their org was added
+    const compareLastOrgAdded = async () => {
+        try {
+            const docRef = doc(db, "organization", "orgList");
+            const docSnap = await getDoc(docRef);
+        
+            if (docSnap.exists()) {
+                const orgsArray = docSnap.data().orgs;    
+                //check if array is empty
+                if(orgsArray.length > 0) {
+                    const lastOrgAddedName = orgsArray[orgsArray.length-1];
+                    if(lastOrgAddedName === orgName){
+                        setOrgName("");
+                        return true;
+                    } else {
+                        setOrgName("");
+                        return false;
+                    }
+                }
+            }
+        } catch (error){
+            console.error(error);
+            return false;
+        }
+    };
+
+    //checks if the database contains the value
+    const checkOrgListContains = async () => {
+        const orgNameString = String(orgName);
+        const docRef = doc(db, "organization", "orgList", orgNameString);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            console.log(orgName + " exists");
+        } else {
+            console.log(orgName + " does not exist");
+        }
+    };
+
+
+
+    //get the orgList and if orgName is in orgList then tell the user their org wasnt made
 
     //also makes the text lowercase
     const handleInputChange = (event) => {
