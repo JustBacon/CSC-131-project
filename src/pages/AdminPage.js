@@ -22,10 +22,16 @@ export const AdminPage = () => {
 
     //creating an organization
     const handleCreateOrg = async () => {
-        const docRef = doc(db, "organization", "orgList");
-        await updateDoc(docRef, {
+        try{
+            const docRef = doc(db, "organization", "orgList");
+            await updateDoc(docRef, {
             orgs: arrayUnion(orgName)
         })
+            console.log("button clicked");
+        } catch(e){
+            console.log("error, button not working");
+        }
+        
     };
 
     //get the orgList and if orgName is in orgList then tell the user their org wasnt made
@@ -38,17 +44,6 @@ export const AdminPage = () => {
         setOrgName(event.target.value.toLowerCase());
     }
 
-    const showIfIsNotAdmin = () => {
-        if(!isAdmin){
-            return (
-                <div>
-                    <h1>You are not an admin</h1>
-                    <h1>Cannot Access !!!!!!!!</h1>
-                    <Button variant='secondary' onClick={ () => navigate('/') }>Go home</Button>
-                </div>
-            )
-        }
-    }
     /*
     //just for ref
     const checkIfAdmin = async() => {
@@ -100,14 +95,15 @@ export const AdminPage = () => {
                             placeholder="Organization Name"
                             onChange={handleInputChange}
                             autoComplete='off'
-                            onSubmit={handleCreateOrg}
                         />
-                        <Button type="submit" onClick={() => handleCreateOrg()}>Create Organization</Button>
+                        <Button onClick={() => handleCreateOrg()}>Create Organization</Button>
                     </form>
                 </>
                  :
                 <> 
-                    {showIfIsNotAdmin()}
+                    <h1>You are not an admin</h1>
+                    <h1>Cannot Access !!!!!!!!</h1>
+                    <Button variant='secondary' onClick={ () => navigate('/') }>Go home</Button>
                 </>
                 }
             </div>
