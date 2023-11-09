@@ -19,30 +19,47 @@ export const AdminPage = () => {
     const inputRef = useRef(null);
     const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
     const [orgName, setOrgName] = useState("");
-    //going to need a variable for lastOrgName for better bounds checking
 
     //creating an organization
     const handleCreateOrg = async () => {
-        try{
+        //get the last element
+        let lastOrgAddedName = "";
+        try {
             const docRef = doc(db, "organization", "orgList");
-            await updateDoc(docRef, {
-            orgs: arrayUnion(orgName)
-        });
-            console.log("button clicked");
-            
-        } catch(error){
-            alert("Failed to add: " + orgName + ".\n\nTry another name");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const orgsArray = docSnap.data().orgs;    
+                //check if array is empty
+                if(orgsArray.length > 0) {
+                    lastOrgAddedName = orgsArray[orgsArray.length-1];
+                    //compare the data
+                    if(lastOrgAddedName === orgName){
+                        setOrgName("");
+                        alert("Failed to add: " + orgName + ".\n\nOrg already created");
+                    }
+                    else {//if the org is not the last element in the database, try adding it
+                        try{
+                            const docRef = doc(db, "organization", "orgList");
+                            await updateDoc(docRef, {
+                            orgs: arrayUnion(orgName)
+                            });  
+                            //show message if org was added to the orgs database
+                            const orgSuccessfullyAdded = await compareLastOrgAdded();
+                            if(orgSuccessfullyAdded) {
+                                alert("Successfully added: " + orgName);
+                            } else {
+                                alert("Failed to add: " + orgName + ".\n\nOrg already created");
+                            }
+                            showOrgNames();
+                        } catch(error){
+                            alert("Failed to add: " + orgName + ".\n\nOrg already created");
+                        }
+                    }
+                }
+            }
+        } catch (error){
+            console.log(error);
         }
-
-        //show message if org was added to the orgs database
-        const orgSuccessfullyAdded = await compareLastOrgAdded();
-        if(orgSuccessfullyAdded) {
-            alert("Successfully added: " + orgName);
-        } else {
-            alert("Failed to add: " + orgName + ".\n\nTry another name");
-        }
-        
-        showOrgNames();
     };
 
     //console.logs all the org names in the array orgs
@@ -62,6 +79,9 @@ export const AdminPage = () => {
           console.error("Error fetching orgList:", error);
         }
     };
+
+    //after button is clicked, check if the orgName is already in the list, then perform actions of adding
+    //if the orgName is already in the list then, show the alert, otherwise tell user they have added the org
 
     //get the last org added. this will be used to alert the user if their org was added
     const compareLastOrgAdded = async () => {
