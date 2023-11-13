@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { client } from '../context/dataContext';
 import { Container } from '@mui/material';
@@ -12,12 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import {
-  randomCreatedDate,
-  randomTraderName,
-  randomId,
-  randomArrayItem,
-} from '@mui/x-data-grid-generator';
+import { DataContext } from '../context/dataContext';
 import {
   GridRowModes,
   GridToolbarContainer,
@@ -26,33 +21,35 @@ import {
 } from '@mui/x-data-grid';
 
 
-function EditToolbar(props) {
-  const { setRows, setRowModesModel } = props;
+// function EditToolbar(props) {
+//   const { setRows, setRowModesModel } = props;
 
-  const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-    }));
-  };
+//   const handleClick = (item) => {
+//     console.log(item)
+//     const id = randomId();
+//     setRows((oldRows) => [...oldRows, { id, device: '', orgassignment: '', testname: '', testmethod: '', notes: '', completed: false, updatedby: '' }]);
+//     setRowModesModel((oldModel) => ({
+//       ...oldModel,
+//       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+//     }));
+//   };
 
-  return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
-      </Button>
-    </GridToolbarContainer>
-  );
-}
+//   return (
+//     <GridToolbarContainer>
+//       <Button color="primary" starticon={<AddIcon />} onClick={handleClick}>
+//         Add record
+//       </Button>
+//     </GridToolbarContainer>
+//   );
+// }
 
 
 export const TestlistPage = () => {
 
- 
+  const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [rowModesModel, setRowModesModel] = useState({});
-
+  const deviceNameList = deviceList?.map((deviceName) => deviceName.Device);
+  
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
@@ -60,16 +57,15 @@ export const TestlistPage = () => {
   };
 
   const handleEditClick = (id) => () => {
+    console.log(id)
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
-  const handleSaveClick = (_id) => async() => {
-    const updateDeviceResponse = await client.entities.test.update({
-      _id: _id,
-      TestName: 'aaa',
-  })
-  console.log(updateDeviceResponse)
-    setRowModesModel({ ...rowModesModel, [_id]: { mode: GridRowModes.View } });
+  const handleSaveClick = (item) => () => {
+    console.log(item)
+    console.log(item.row._id)
+    console.log(item.row.testname)
+    setRowModesModel({ ...rowModesModel, [item.id]: { mode: GridRowModes.View } });
   };
 
   const handleDeleteClick = (_id) => async () => {
@@ -91,7 +87,18 @@ export const TestlistPage = () => {
     }
   };
 
-  const processRowUpdate = (newRow) => {
+  const processRowUpdate = async(newRow, oldRow) => {
+    console.log(newRow)
+    const updateDeviceResponse = await client.entities.test.update({
+      _id: newRow._id,
+      Device: newRow.device,
+      TestName: newRow.testname,
+      TestMethod: newRow.testmethod,
+      Notes: newRow.notes,
+      Completed: newRow.completed,
+      UpdatedBy: newRow.updatedby
+    })
+    console.log(updateDeviceResponse)
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
@@ -101,7 +108,7 @@ export const TestlistPage = () => {
     setRowModesModel(newRowModesModel);
   };
 
-  const {deviceName} = useParams()
+  const { deviceName } = useParams()
   const [rows, setRows] = useState([])
 
   useEffect(() => {
@@ -126,7 +133,7 @@ export const TestlistPage = () => {
         objectContainer.updatedby = item.UpdatedBy
         return objectContainer
       })
-  
+
       setRows(someObject)
     }
     getTestRows()
@@ -134,16 +141,20 @@ export const TestlistPage = () => {
 
   const columns = [
     {
-      field:'_id',
+      field: '_id',
       headerName: '_id',
-      width: 90},
-    { 
-      field: 'id', 
-      headerName: 'TestID', 
-      width: 90},
+      width: 90
+    },
+    {
+      field: 'id',
+      headerName: 'TestID',
+      width: 90
+    },
     {
       field: 'device',
       headerName: 'Device',
+      type: 'singleSelect',
+      valueOptions: deviceNameList,
       width: 120,
       editable: true,
     },
@@ -174,6 +185,7 @@ export const TestlistPage = () => {
     {
       field: 'completed',
       headerName: 'Completed',
+      type: 'boolean',
       width: 150,
       editable: true,
     },
@@ -189,8 +201,8 @@ export const TestlistPage = () => {
       headerName: 'Actions',
       width: 100,
       cellClassName: 'actions',
-      
-      getActions: ( item ) => {
+
+      getActions: (item) => {
         const isInEditMode = rowModesModel[item.id]?.mode === GridRowModes.Edit;
 
         if (isInEditMode) {
@@ -207,7 +219,7 @@ export const TestlistPage = () => {
               icon={<CancelIcon />}
               label="Cancel"
               className="textPrimary"
-              onClick={handleCancelClick(item._id)}
+              onClick={handleCancelClick(item.id)}
               color="inherit"
             />,
           ];
@@ -237,50 +249,55 @@ export const TestlistPage = () => {
     <div className="test-list-page">
       <div><h2 id="subtitle-name">Test List for: {deviceName}</h2></div>
       <div className="test-list-data">
-      <div id="search-for-device">
-        <form autoComplete="off">
+        <div id="search-for-device">
+          <form autoComplete="off">
 
-          <input id="search-for-device-input"
-            type="text"
-            name="testName"
-            placeholder="Test Name"
-          />
-          <select name="device">
-                {/* {deviceList?.map((item, index) => (
+            <input id="search-for-device-input"
+              type="text"
+              name="testName"
+              placeholder="Test Name"
+            />
+            <select name="device">
+              {/* {deviceList?.map((item, index) => (
                     <option key={index} value={item.Device}>{item.Device}</option>
                 )
                 )} */}
-                <option>test1</option>
-                <option>test1</option>
-                <option>test1</option>
-          </select>
-          <Button id="search-for-device-button" variant="primary">Search</Button>
-        </form>
-      </div>
-        <Box sx={{ height: 400, width: '100%', borderColor: 'primary.dark', '& .MuiDataGrid-cell:hover': {color: 'primary.main'} }} >
+              <option>test1</option>
+              <option>test1</option>
+              <option>test1</option>
+            </select>
+            <Button id="search-for-device-button" variant="primary">Search</Button>
+          </form>
+        </div>
+        <Box sx={{ height: 400, width: '100%', borderColor: 'primary.dark', '& .MuiDataGrid-cell:hover': { color: 'primary.main' } }} >
           <Container>
 
-          <DataGrid className='test-list-data-table'
-            rows={rows}
-            columns={columns}
-            initialState={{
-              columns: {
-                columnVisibilityModel: {
-                  // Hide columns status and traderName, the other columns will remain visible
-                  _id: false,
+            <DataGrid className='test-list-data-table'
+              rows={rows}
+              columns={columns}
+              editMode='row'
+              rowModesModel={rowModesModel}
+              onRowModesModelChange={handleRowModesModelChange}
+              onRowEditStop={handleRowEditStop}
+              processRowUpdate={processRowUpdate}
+              initialState={{
+                columns: {
+                  columnVisibilityModel: {
+                    // Hide columns status and traderName, the other columns will remain visible
+                    _id: false,
+                  },
                 },
-              },
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
                 },
-              },
-            }}
-            pageSizeOptions={[5]}
-            checkboxSelection
-            disableRowSelectionOnClick
+              }}
+              pageSizeOptions={[5]}
+              checkboxSelection
+              disableRowSelectionOnClick
             />
-            </Container>
+          </Container>
         </Box>
       </div>
     </div>
