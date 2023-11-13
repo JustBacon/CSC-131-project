@@ -7,8 +7,91 @@ import { Container } from '@mui/material';
 import '../styles/App.css';
 import { Button, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import {
+  randomCreatedDate,
+  randomTraderName,
+  randomId,
+  randomArrayItem,
+} from '@mui/x-data-grid-generator';
+import {
+  GridRowModes,
+  GridToolbarContainer,
+  GridActionsCellItem,
+  GridRowEditStopReasons,
+} from '@mui/x-data-grid';
+
+
+function EditToolbar(props) {
+  const { setRows, setRowModesModel } = props;
+
+  const handleClick = () => {
+    const id = randomId();
+    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+    }));
+  };
+
+  return (
+    <GridToolbarContainer>
+      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+        Add record
+      </Button>
+    </GridToolbarContainer>
+  );
+}
+
 
 export const TestlistPage = () => {
+
+ 
+  const [rowModesModel, setRowModesModel] = React.useState({});
+
+  const handleRowEditStop = (params, event) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
+
+  const handleEditClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleSaveClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
+
+  const handleDeleteClick = (id) => () => {
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
+  const handleCancelClick = (id) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+
+    const editedRow = rows.find((row) => row.id === id);
+    if (editedRow.isNew) {
+      setRows(rows.filter((row) => row.id !== id));
+    }
+  };
+
+  const processRowUpdate = (newRow) => {
+    const updatedRow = { ...newRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    return updatedRow;
+  };
+
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   const {deviceName} = useParams()
   const [rows, setRows] = useState([])
@@ -93,7 +176,7 @@ export const TestlistPage = () => {
       editable: true,
       type: 'singleSelect',
       valueOptions: ['Market', 'Finance', 'Development'],
-      /*
+      
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -132,7 +215,7 @@ export const TestlistPage = () => {
             color="inherit"
           />,
         ];
-      },*/
+      },
     },
 
   ];
