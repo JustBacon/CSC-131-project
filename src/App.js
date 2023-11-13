@@ -10,6 +10,7 @@ import { SignUpPage } from './pages/SignUpPage';
 import { Protected } from './component/protected';
 import { AuthProvider } from './context/AuthContext';
 import { NavBar} from './component/NavBar'
+import { AdminPage } from './pages/AdminPage';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/" element={<Protected />} >
                 <Route path="/" index element={<HomePage />} />
+                <Route path="/admin" index element={<AdminPage />} />
                 <Route path="/form" element={<FormPage />} />
                 <Route path="/testlist/:deviceName" element={<TestlistPage />} />
                 <Route path="*" element={<ErrorPage />} />

@@ -8,7 +8,6 @@ import { DataContext } from '../context/dataContext';
 import { Link } from 'react-router-dom';
 import { DeviceNameInput } from '../component/deviceNameInput';
 
-
 export const { client } = vendiaClient();
 
 export const HomePage = () => {

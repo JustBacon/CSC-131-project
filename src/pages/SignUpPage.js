@@ -6,6 +6,8 @@ import '../styles/App.css';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthContext } from '../context/AuthContext';
+import { db } from '../configuration/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 
 export const SignUpPage = () => {
@@ -20,6 +22,9 @@ export const SignUpPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log(userCredential);
       const user = userCredential.user;
+      const addUser = await setDoc(doc(db, "users", auth.currentUser.uid), {
+        roles: ["default"]
+      })
       localStorage.setItem('token', user.accessToken);
       localStorage.setItem('user', JSON.stringify(user));
       // Clear the email and password fields
