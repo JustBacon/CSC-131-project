@@ -18,13 +18,13 @@ export const NavBar = () => {
         <div className="title-header2">
             {/* <button onClick={testing}>test</button> */}
             <ul>
-                <li>
-                    <Link className="navBarButtons" to="/">Home</Link>
+                <li className="navbarComponent">
+                    <Link to="/">Home</Link>
                 </li>
 
                 {isAdmin ? 
-                <li>
-                    <Link className="navBarButtons" to="/admin">Admin</Link> 
+                <li className="navbarComponent">
+                    <Link to="/admin">Admin</Link> 
                 </li>
                 : <></>
                 }
