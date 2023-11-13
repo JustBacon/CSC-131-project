@@ -51,7 +51,7 @@ function EditToolbar(props) {
 export const TestlistPage = () => {
 
  
-  const [rowModesModel, setRowModesModel] = React.useState({});
+  const [rowModesModel, setRowModesModel] = useState({});
 
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -63,12 +63,20 @@ export const TestlistPage = () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
-  const handleSaveClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  const handleSaveClick = (_id) => async() => {
+    const updateDeviceResponse = await client.entities.test.update({
+      _id: _id,
+      TestName: 'aaa',
+  })
+  console.log(updateDeviceResponse)
+    setRowModesModel({ ...rowModesModel, [_id]: { mode: GridRowModes.View } });
   };
 
-  const handleDeleteClick = (id) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+  const handleDeleteClick = (_id) => async () => {
+    console.log(_id)
+    const removeDeviceResponse = await client.entities.test.remove(_id)
+    console.log(removeDeviceResponse)
+    setRows(rows.filter((row) => row._id !== _id));
   };
 
   const handleCancelClick = (id) => () => {
@@ -107,6 +115,7 @@ export const TestlistPage = () => {
       })
       const someObject = checkDeviceName.items.map(item => {
         const objectContainer = {};
+        objectContainer._id = item._id
         objectContainer.id = item.TestID
         objectContainer.device = item.Device
         objectContainer.orgassignment = item.OrgAssignment
@@ -124,7 +133,12 @@ export const TestlistPage = () => {
   })
 
   const columns = [
-    { field: 'id', 
+    {
+      field:'_id',
+      headerName: '_id',
+      width: 90},
+    { 
+      field: 'id', 
       headerName: 'TestID', 
       width: 90},
     {
@@ -172,13 +186,12 @@ export const TestlistPage = () => {
     {
       field: 'actions',
       type: 'actions',
-      width: 150,
-      editable: true,
-      type: 'singleSelect',
-      valueOptions: ['Market', 'Finance', 'Development'],
+      headerName: 'Actions',
+      width: 100,
+      cellClassName: 'actions',
       
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+      getActions: ( item ) => {
+        const isInEditMode = rowModesModel[item.id]?.mode === GridRowModes.Edit;
 
         if (isInEditMode) {
           return [
@@ -188,13 +201,13 @@ export const TestlistPage = () => {
               sx={{
                 color: 'primary.main',
               }}
-              onClick={handleSaveClick(id)}
+              onClick={handleSaveClick(item)}
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
               label="Cancel"
               className="textPrimary"
-              onClick={handleCancelClick(id)}
+              onClick={handleCancelClick(item._id)}
               color="inherit"
             />,
           ];
@@ -205,13 +218,13 @@ export const TestlistPage = () => {
             icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
-            onClick={handleEditClick(id)}
+            onClick={handleEditClick(item.id)}
             color="inherit"
           />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(id)}
+            onClick={handleDeleteClick(item.row._id)}
             color="inherit"
           />,
         ];
@@ -251,6 +264,12 @@ export const TestlistPage = () => {
             rows={rows}
             columns={columns}
             initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  // Hide columns status and traderName, the other columns will remain visible
+                  _id: false,
+                },
+              },
               pagination: {
                 paginationModel: {
                   pageSize: 5,
