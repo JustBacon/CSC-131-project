@@ -8,14 +8,14 @@ export const DeviceNameDropDown = () => {
 
     useEffect(() => {
         setDevice("device1")
-      })
+    }, [])
 
     const handleDeviceChange = (event) => {
         setDevice(event.target.value);
     }
 
     return (
-        
+
         <div>
             <select name="device" value={device} onChange={handleDeviceChange}>
                 {deviceList?.map((item, index) => (
