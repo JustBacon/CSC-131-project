@@ -19,6 +19,9 @@ export const NavBar = () => {
                     <img src="AlgorithmAlliesLogo.png" />
                     <h1>Algorithm Allies Team 6</h1>
                 </li>
+                <li className="showUser-parent">
+                    {user &&  <p className="showUserInHomePage">Hi {user.email}</p>}
+                </li>
                 <li>
                     {!user && <Link to="/login">Login</Link>}
                     {user && <Button onClick={logoutButton}>Logout</Button>}
