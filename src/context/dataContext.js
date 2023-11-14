@@ -25,6 +25,7 @@ export const DataProvider = ({ children }) => {
   const [status, setStatus] = useState('');
   const [progress, setProgress] = useState(0);
   const [deviceList, setDeviceList] = useState();
+  const [newDevice, setNewDevice] = useState('')
 
   useEffect(() => {
     const listTests = async () => {
@@ -37,7 +38,7 @@ export const DataProvider = ({ children }) => {
     }
     listTests();
     listDevice();
-  }, [])
+  }, [deviceList])
 
   const dataValue = {
     device: [device, setDevice], 
@@ -51,7 +52,8 @@ export const DataProvider = ({ children }) => {
     updatedBy: [updatedBy, setUpdatedBy],
     status: [status, setStatus],
     progress: [progress, setProgress],
-    deviceList: [deviceList, setDeviceList]
+    deviceList: [deviceList, setDeviceList],
+    newDevice: [newDevice, setNewDevice]
   }
 
   return (

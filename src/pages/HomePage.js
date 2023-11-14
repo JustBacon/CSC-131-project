@@ -7,7 +7,7 @@ import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Link } from 'react-router-dom';
 import { DeviceNameInput } from '../component/deviceNameInput';
-
+import { PopupForm } from '../component/PopupForm';
 
 export const { client } = vendiaClient();
 
@@ -16,26 +16,31 @@ export const HomePage = () => {
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [device, setDevice] = useContext(DataContext).device
   const [searchDeviceInput, setSearchDeviceInput] = useState("")
+  const [popupButton, setPopupButton] = useState(false)
+  const [tempDevice, setTempDevice] = useState("")
+  const [newDevice, setNewDevice] = useContext(DataContext).newDevice
+  
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
       filter: {
         Device: {
-          contains: device
+          eq: newDevice
         }
       }
     })
 
     if (checkDeviceName.items.length === 0) {
       const addDeviceResponse = await client.entities.device.add({
-        Device: device,
+        Device: newDevice,
         Status: "active",
         Progress: 0
       })
       console.log(addDeviceResponse)
     }
-    setDevice("")
+    setNewDevice("")
     refreshList()
+    console.log(newDevice)
   }
 
   const refreshList = async () => {
@@ -43,13 +48,11 @@ export const HomePage = () => {
     setDeviceList(listDeviceResponse?.items);
   }
 
-  const handleDelete = async (event) => {
-    setDevice(event.target.id) // Device
-    deleteAllTest(event.target.id)// Device
-    await deleteDevice(event.target.id)
+  const handleDelete = async () => {
+    console.log(tempDevice)
+    deleteAllTest(tempDevice)// Device
+    await deleteDevice(tempDevice)
     refreshList()
-    console.log(event)
-
   }
 
   const deleteDevice = async (value) => {
@@ -74,13 +77,13 @@ export const HomePage = () => {
       },
     })
 
-    for(let i = 0; i < checkResponseTest.items.length; i++){
+    for (let i = 0; i < checkResponseTest.items.length; i++) {
       const deleteTest = await client.entities.test.remove(checkResponseTest.items[i]._id)
       console.log(deleteTest)
     }
-    
+
   }
-  
+
   const searchDevice = async (value) => {
     const checkDeviceName = await client.entities.device.list({
       filter: {
@@ -97,7 +100,87 @@ export const HomePage = () => {
     setSearchDeviceInput(event.target.value);
     event.target.value ? searchDevice(event.target.value) : refreshList();
   }
-  
+
+  const renameDevice = async () => {
+    console.log(tempDevice)
+    setPopupButton(false)
+    const checkResponseTest = await client.entities.test.list({
+      filter: {
+        Device: {
+          eq: tempDevice,
+        },
+      },
+    })
+    if (device !== "") {
+      for (let i = 0; i < checkResponseTest.items.length; i++) {
+        const updateTestResponse = await client.entities.test.update({
+          _id: checkResponseTest.items[i]._id,
+          Device: device
+        })
+        console.log(updateTestResponse)
+      }
+    }
+    const checkResponse = await client.entities.device.list({
+      filter: {
+        Device: {
+          eq: tempDevice,
+        },
+      },
+    })
+
+    if (device !== "") {
+      const updateDeviceResponse = await client.entities.device.update({
+        _id: checkResponse.items[0]._id,
+        Device: device
+      })
+      console.log(updateDeviceResponse)
+    }
+    setDevice("")
+    refreshList()
+  }
+
+  const handleEditButton = (event) => {
+    setTempDevice(event.target.id)
+    setPopupButton(true)
+  }
+
+
+  const updateDeviceProgress = async (device) => {
+    const response = await client.entities.device.list({
+        filter:{
+            Device:{
+                eq: device
+            }
+        }
+    })
+
+    const totalDeviceResponse = await client.entities.test.list({
+        filter: {
+            Device: {
+                eq: device
+            }
+        }
+    })
+
+    const totalCompletedResponse = await client.entities.test.list({
+        filter:{
+            Device: {
+                eq: device
+            },
+            _and:{
+                Completed:{
+                    eq: true
+                }
+            }
+        }
+    })
+
+    const updateProgressResponse = await client.entities.device.update({
+        _id: response.items[0]._id,
+        Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+    })
+    console.log(updateProgressResponse)
+}
 
   return (
     <div>
@@ -118,8 +201,8 @@ export const HomePage = () => {
 
       <div className="container">
         <div className="add-device-button-div">
-            <DeviceNameInput id="add-device-input"/>
-            <Button id="add-device-button" variant="primary" onClick={addDevice}>New Device</Button>
+          <DeviceNameInput id="add-device-input" />
+          <Button id="add-device-button" variant="primary" onClick={addDevice}>New Device</Button>
         </div>
         {deviceList?.map((item, index) => (
           <div key={index} className="item-box">
@@ -134,9 +217,17 @@ export const HomePage = () => {
             <Link to={`/testlist/${item.Device}`} className="custom-link">
               <Button className="button-shadow-effects" variant="secondary">View Test</Button>
             </Link>
-            <Button className="delete-device-button" variant="secondary" id={item.Device} onClick={handleDelete}>Delete</Button>
+            <Button className="delete-device-button" id={item.Device} onClick={handleEditButton}>Edit</Button>
+            {/* <Button className="delete-device-button" variant="secondary" id={item.Device} onClick={handleDelete}>Delete</Button> */}
           </div>
         ))}
+        <PopupForm trigger={popupButton} setTrigger={setPopupButton}>
+          <form>
+            <DeviceNameInput id="add-device-input" />
+            <Button onClick={renameDevice}>update</Button>
+            <Button className="delete-device-button" variant="secondary" onClick={handleDelete}>Delete All</Button>
+          </form>
+        </PopupForm>
       </div>
     </div>
   )

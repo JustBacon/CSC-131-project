@@ -1,11 +1,13 @@
-import { useContext } from "react"
+import { useState, useContext } from "react"
 import { DataContext } from "../context/dataContext"
 
 export const DeviceNameInput = () => {
     const [device, setDevice] = useContext(DataContext).device
+    const [newDevice, setNewDevice] = useContext(DataContext).newDevice
 
     const handleDeviceChange = (event) => {
-        setDevice(event.target.value);
+        // setDevice(event.target.value);
+        setNewDevice(event.target.value);
     }
 
     return (
@@ -13,7 +15,7 @@ export const DeviceNameInput = () => {
             type="text"
             name="device"
             placeholder="Device Name..."
-            value={device}
+            value={newDevice}
             onChange={handleDeviceChange}
         />
     )

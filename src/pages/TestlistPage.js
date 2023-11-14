@@ -19,36 +19,52 @@ import {
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
 
-
-// function EditToolbar(props) {
-//   const { setRows, setRowModesModel } = props;
-
-//   const handleClick = (item) => {
-//     console.log(item)
-//     const id = randomId();
-//     setRows((oldRows) => [...oldRows, { id, device: '', orgassignment: '', testname: '', testmethod: '', notes: '', completed: false, updatedby: '' }]);
-//     setRowModesModel((oldModel) => ({
-//       ...oldModel,
-//       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-//     }));
-//   };
-
-//   return (
-//     <GridToolbarContainer>
-//       <Button color="primary" starticon={<AddIcon />} onClick={handleClick}>
-//         Add record
-//       </Button>
-//     </GridToolbarContainer>
-//   );
-// }
-
-
 export const TestlistPage = () => {
 
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [rowModesModel, setRowModesModel] = useState({});
   const deviceNameList = deviceList?.map((deviceName) => deviceName.Device);
   
+  const updateDeviceProgress = async (device) => {
+    const response = await client.entities.device.list({
+        filter:{
+            Device:{
+                eq: device
+            }
+        }
+    })
+
+    const totalDeviceResponse = await client.entities.test.list({
+        filter: {
+            Device: {
+                eq: device
+            }
+        }
+    })
+
+    const totalCompletedResponse = await client.entities.test.list({
+        filter:{
+            Device: {
+                eq: device
+            },
+            _and:{
+                Completed:{
+                    eq: true
+                }
+            }
+        }
+    })
+
+    const updateProgressResponse = await client.entities.device.update({
+        _id: response.items[0]._id,
+        Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+    })
+
+    const listDeviceResponse = await client.entities.device.list();
+    setDeviceList(listDeviceResponse?.items);
+    console.log(updateProgressResponse)
+}
+
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
@@ -64,10 +80,11 @@ export const TestlistPage = () => {
     setRowModesModel({ ...rowModesModel, [item.id]: { mode: GridRowModes.View } });
   };
 
-  const handleDeleteClick = (_id) => async () => {
-    const removeDeviceResponse = await client.entities.test.remove(_id)
+  const handleDeleteClick = (item) => async () => {
+    const removeDeviceResponse = await client.entities.test.remove(item.row._id)
+    updateDeviceProgress(item.row.device)
     console.log(removeDeviceResponse)
-    setRows(rows.filter((row) => row._id !== _id));
+    setRows(rows.filter((row) => row._id !== item.row._id));
   };
 
   const handleCancelClick = (id) => () => {
@@ -94,6 +111,7 @@ export const TestlistPage = () => {
       UpdatedBy: newRow.updatedby
     })
     console.log(updateDeviceResponse)
+    updateDeviceProgress(newRow.device)
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
@@ -116,7 +134,7 @@ export const TestlistPage = () => {
       const checkDeviceName = await client.entities.test.list({
         filter: {
           Device: {
-            contains: deviceName
+            eq: deviceName
           }
         }
       })
@@ -237,7 +255,7 @@ export const TestlistPage = () => {
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(item.row._id)}
+            onClick={handleDeleteClick(item)}
             color="inherit"
           />,
         ];
