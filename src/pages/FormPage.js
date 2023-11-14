@@ -34,7 +34,7 @@ export const FormPage = () => {
             TestName: testName,
             TestMethod: testMethod,
             Notes: notes,
-            Completed: completed,
+            Completed: false,
             UpdatedBy: updatedBy
         })
         console.log(addTestResponse)
@@ -174,6 +174,7 @@ export const FormPage = () => {
                             placeholder="Org Assignment"
                             value={orgAssignment}
                             onChange={handleOrgAssignmentChange}
+                            required
                         />
                     </div>
                     <div className="general-div">
@@ -184,6 +185,7 @@ export const FormPage = () => {
                             placeholder="Test Name"
                             value={testName}
                             onChange={handleTestNameChange}
+                            required
                         />
                     </div>
                     <div className="general-div">
@@ -194,6 +196,7 @@ export const FormPage = () => {
                             placeholder="Test Method"
                             value={testMethod}
                             onChange={handleTestMethod}
+                            required
                         />
                     </div>
                     <div className="general-div">
@@ -223,6 +226,7 @@ export const FormPage = () => {
                             placeholder="Updated by"
                             value={updatedBy}
                             onChange={handleUpdatedBy}
+                            required
                         />
                     </div>
 
