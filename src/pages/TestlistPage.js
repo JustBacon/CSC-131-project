@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { DataGrid, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton } from '@mui/x-data-grid';
 import { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { client } from '../context/dataContext';
 import { Container } from '@mui/material';
 import '../styles/App.css';
@@ -307,6 +307,9 @@ export const TestlistPage = () => {
             />
           </Container>
         </Box>
+      </div>
+      <div>
+        <Link to={{pathname: "/form", state: {deviceName}}}><Button variant="primary"> Add a test </Button></Link>
       </div>
     </div>
   );

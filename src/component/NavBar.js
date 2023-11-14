@@ -18,19 +18,24 @@ export const NavBar = () => {
         <div className="title-header2">
             {/* <button onClick={testing}>test</button> */}
             <ul>
-                <li>
+                <li className="navbarComponent">
                     <Link to="/">Home</Link>
                 </li>
+
+                {isAdmin ? 
+                <li className="navbarComponent">
+                    <Link to="/admin">Admin</Link> 
+                </li>
+                : <></>
+                }
+
                 <li className="flex-row">
                     <img src="AlgorithmAlliesLogo.png" />
                     <h1>Algorithm Allies Team 6</h1>
                 </li>
-                    {isAdmin ? 
-                <li>
-                    <Link to="/admin">Admin</Link> 
+                <li className="showUser-parent">
+                    {user &&  <p className="showUserInHomePage">Hi {user.email}</p>}
                 </li>
-                : <></>
-}
                 <li>
                     {!user && <Link to="/login">Login</Link>}
                     {user && <Button onClick={logoutButton}>Logout</Button>}

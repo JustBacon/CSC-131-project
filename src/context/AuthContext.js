@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
-
+    if(isAdmin){
+      setIsAdmin(true);
+    }
     checkIfAdmin(user);
 
     return () => unsubscribe();
