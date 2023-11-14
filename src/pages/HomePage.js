@@ -18,26 +18,29 @@ export const HomePage = () => {
   const [searchDeviceInput, setSearchDeviceInput] = useState("")
   const [popupButton, setPopupButton] = useState(false)
   const [tempDevice, setTempDevice] = useState("")
+  const [newDevice, setNewDevice] = useContext(DataContext).newDevice
+  
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
       filter: {
         Device: {
-          contains: device
+          eq: newDevice
         }
       }
     })
 
     if (checkDeviceName.items.length === 0) {
       const addDeviceResponse = await client.entities.device.add({
-        Device: device,
+        Device: newDevice,
         Status: "active",
         Progress: 0
       })
       console.log(addDeviceResponse)
     }
-    setDevice("")
+    setNewDevice("")
     refreshList()
+    console.log(newDevice)
   }
 
   const refreshList = async () => {
@@ -143,6 +146,43 @@ export const HomePage = () => {
     setPopupButton(true)
   }
 
+
+  const updateDeviceProgress = async (device) => {
+    const response = await client.entities.device.list({
+        filter:{
+            Device:{
+                eq: device
+            }
+        }
+    })
+
+    const totalDeviceResponse = await client.entities.test.list({
+        filter: {
+            Device: {
+                eq: device
+            }
+        }
+    })
+
+    const totalCompletedResponse = await client.entities.test.list({
+        filter:{
+            Device: {
+                eq: device
+            },
+            _and:{
+                Completed:{
+                    eq: true
+                }
+            }
+        }
+    })
+
+    const updateProgressResponse = await client.entities.device.update({
+        _id: response.items[0]._id,
+        Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+    })
+    console.log(updateProgressResponse)
+}
 
   return (
     <div>
