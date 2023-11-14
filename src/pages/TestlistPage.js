@@ -61,14 +61,10 @@ export const TestlistPage = () => {
   };
 
   const handleSaveClick = (item) => () => {
-    console.log(item)
-    console.log(item.row._id)
-    console.log(item.row.testname)
     setRowModesModel({ ...rowModesModel, [item.id]: { mode: GridRowModes.View } });
   };
 
   const handleDeleteClick = (_id) => async () => {
-    console.log(_id)
     const removeDeviceResponse = await client.entities.test.remove(_id)
     console.log(removeDeviceResponse)
     setRows(rows.filter((row) => row._id !== _id));
@@ -87,7 +83,7 @@ export const TestlistPage = () => {
   };
 
   const processRowUpdate = async(newRow, oldRow) => {
-    console.log(newRow)
+    // console.log(newRow)
     const updateDeviceResponse = await client.entities.test.update({
       _id: newRow._id,
       Device: newRow.device,
@@ -102,6 +98,11 @@ export const TestlistPage = () => {
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };
+
+  const onProcessRowUpdateError = (newRow, oldRow) => {
+    const updatedRow = { ...oldRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+  }
 
   const handleRowModesModelChange = (newRowModesModel) => {
     setRowModesModel(newRowModesModel);
@@ -142,6 +143,7 @@ export const TestlistPage = () => {
     {
       field: '_id',
       headerName: '_id',
+      hideable: false,
       width: 90
     },
     {
@@ -266,6 +268,7 @@ export const TestlistPage = () => {
               onRowModesModelChange={handleRowModesModelChange}
               onRowEditStop={handleRowEditStop}
               processRowUpdate={processRowUpdate}
+              onProcessRowUpdateError={onProcessRowUpdateError}
               initialState={{
               sorting: { sortModel: [{field: 'id', sort: 'asc'}]},
                 columns: {
