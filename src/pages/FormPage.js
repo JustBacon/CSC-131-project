@@ -34,7 +34,7 @@ export const FormPage = () => {
             TestName: testName,
             TestMethod: testMethod,
             Notes: notes,
-            Completed: completed,
+            Completed: false,
             UpdatedBy: updatedBy
         })
         console.log(addTestResponse)

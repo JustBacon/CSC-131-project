@@ -48,13 +48,11 @@ export const HomePage = () => {
     setDeviceList(listDeviceResponse?.items);
   }
 
-  const handleDelete = async (event) => {
-    setDevice(event.target.id) // Device
-    deleteAllTest(event.target.id)// Device
-    await deleteDevice(event.target.id)
+  const handleDelete = async () => {
+    console.log(tempDevice)
+    deleteAllTest(tempDevice)// Device
+    await deleteDevice(tempDevice)
     refreshList()
-    console.log(event)
-
   }
 
   const deleteDevice = async (value) => {
@@ -227,6 +225,7 @@ export const HomePage = () => {
           <form>
             <DeviceNameInput id="add-device-input" />
             <Button onClick={renameDevice}>update</Button>
+            <Button className="delete-device-button" variant="secondary" onClick={handleDelete}>Delete All</Button>
           </form>
         </PopupForm>
       </div>
