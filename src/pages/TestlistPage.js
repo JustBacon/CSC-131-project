@@ -1,19 +1,17 @@
 import Box from '@mui/material/Box';
 import { DataGrid, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { client } from '../context/dataContext';
 import { Container } from '@mui/material';
 import '../styles/App.css';
 import { Button, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
 
 export const TestlistPage = () => {
 
   const {deviceName} = useParams()
   const [rows, setRows] = useState([])
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getTestRows = async () => {
@@ -41,10 +39,6 @@ export const TestlistPage = () => {
     }
     getTestRows()
   },[])
-
-  const handleAddTest = async () => {
-    navigate("/form");
-  }
 
   const columns = [
     { field: 'id', 
@@ -176,7 +170,7 @@ export const TestlistPage = () => {
         </Box>
       </div>
       <div>
-        <Button variant="primary" onClick={handleAddTest}> Add a test </Button>
+        <Link to={{pathname: "/form", state: {deviceName}}}><Button variant="primary"> Add a test </Button></Link>
       </div>
     </div>
   );
