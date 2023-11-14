@@ -103,6 +103,7 @@ export const HomePage = () => {
 
   const renameDevice = async () => {
     console.log(tempDevice)
+    console.log(newDevice)
     setPopupButton(false)
     const checkResponseTest = await client.entities.test.list({
       filter: {
@@ -111,11 +112,11 @@ export const HomePage = () => {
         },
       },
     })
-    if (device !== "") {
+    if (newDevice !== "") {
       for (let i = 0; i < checkResponseTest.items.length; i++) {
         const updateTestResponse = await client.entities.test.update({
           _id: checkResponseTest.items[i]._id,
-          Device: device
+          Device: newDevice
         })
         console.log(updateTestResponse)
       }
@@ -128,14 +129,14 @@ export const HomePage = () => {
       },
     })
 
-    if (device !== "") {
+    if (newDevice !== "") {
       const updateDeviceResponse = await client.entities.device.update({
         _id: checkResponse.items[0]._id,
-        Device: device
+        Device: newDevice
       })
       console.log(updateDeviceResponse)
     }
-    setDevice("")
+    setNewDevice("")
     refreshList()
   }
 
