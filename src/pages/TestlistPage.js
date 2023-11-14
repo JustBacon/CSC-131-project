@@ -7,11 +7,13 @@ import { Container } from '@mui/material';
 import '../styles/App.css';
 import { Button, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 
 export const TestlistPage = () => {
 
   const {deviceName} = useParams()
   const [rows, setRows] = useState([])
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getTestRows = async () => {
@@ -39,6 +41,10 @@ export const TestlistPage = () => {
     }
     getTestRows()
   },[])
+
+  const handleAddTest = async () => {
+    navigate("/form");
+  }
 
   const columns = [
     { field: 'id', 
@@ -168,6 +174,9 @@ export const TestlistPage = () => {
             />
             </Container>
         </Box>
+      </div>
+      <div>
+        <Button variant="primary" onClick={handleAddTest}> Add a test </Button>
       </div>
     </div>
   );
