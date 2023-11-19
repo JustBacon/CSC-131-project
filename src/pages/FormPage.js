@@ -98,7 +98,7 @@ export const FormPage = () => {
     // refreshList (i think there is a better way, idk how)
     // regrab the list from client and setTestList
     const refreshList = async () => {
-        const listTestsResponse = await client.entities.test.list();
+        const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED',});
         setTestList(listTestsResponse?.items);
     }
 
@@ -117,7 +117,8 @@ export const FormPage = () => {
                     eq: device
                 }
             }
-        })
+        },
+        {readMode:'NODE_LEDGERED',})
 
         const totalDeviceResponse = await client.entities.test.list({
             filter: {
@@ -125,7 +126,8 @@ export const FormPage = () => {
                     eq: device
                 }
             }
-        })
+        },
+        {readMode:'NODE_LEDGERED',})
 
         const totalCompletedResponse = await client.entities.test.list({
             filter:{
@@ -138,7 +140,8 @@ export const FormPage = () => {
                     }
                 }
             }
-        })
+        },
+        {readMode:'NODE_LEDGERED',})
 
         const updateProgressResponse = await client.entities.device.update({
             _id: response.items[0]._id,

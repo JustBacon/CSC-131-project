@@ -32,7 +32,8 @@ export const TestlistPage = () => {
                 eq: device
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const totalDeviceResponse = await client.entities.test.list({
         filter: {
@@ -40,7 +41,8 @@ export const TestlistPage = () => {
                 eq: device
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const totalCompletedResponse = await client.entities.test.list({
         filter:{
@@ -53,14 +55,15 @@ export const TestlistPage = () => {
                 }
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const updateProgressResponse = await client.entities.device.update({
         _id: response.items[0]._id,
         Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
     })
 
-    const listDeviceResponse = await client.entities.device.list();
+    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED',});
     setDeviceList(listDeviceResponse?.items);
     console.log(updateProgressResponse)
 }
@@ -137,7 +140,8 @@ export const TestlistPage = () => {
             eq: deviceName
           }
         }
-      })
+      },
+      {readMode:'NODE_LEDGERED',})
       const someObject = checkDeviceName.items.map(item => {
         const objectContainer = {};
         objectContainer._id = item._id

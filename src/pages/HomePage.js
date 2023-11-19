@@ -28,7 +28,8 @@ export const HomePage = () => {
           eq: newDevice
         }
       }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     if (checkDeviceName.items.length === 0) {
       const addDeviceResponse = await client.entities.device.add({
@@ -44,7 +45,7 @@ export const HomePage = () => {
   }
 
   const refreshList = async () => {
-    const listDeviceResponse = await client.entities.device.list();
+    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED',});
     setDeviceList(listDeviceResponse?.items);
   }
 
@@ -62,7 +63,8 @@ export const HomePage = () => {
           eq: value,
         },
       },
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const deleteDevice = await client.entities.device.remove(checkResponse.items[0]._id)
     console.log(deleteDevice)
@@ -75,7 +77,8 @@ export const HomePage = () => {
           eq: value,
         },
       },
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     for (let i = 0; i < checkResponseTest.items.length; i++) {
       const deleteTest = await client.entities.test.remove(checkResponseTest.items[i]._id)
@@ -91,7 +94,8 @@ export const HomePage = () => {
           contains: value
         }
       }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
     console.log(checkDeviceName.items)
     setDeviceList(checkDeviceName.items)
   }
@@ -111,7 +115,8 @@ export const HomePage = () => {
           eq: tempDevice,
         },
       },
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
     if (newDevice !== "") {
       for (let i = 0; i < checkResponseTest.items.length; i++) {
         const updateTestResponse = await client.entities.test.update({
@@ -127,7 +132,8 @@ export const HomePage = () => {
           eq: tempDevice,
         },
       },
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     if (newDevice !== "") {
       const updateDeviceResponse = await client.entities.device.update({
@@ -153,7 +159,8 @@ export const HomePage = () => {
                 eq: device
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const totalDeviceResponse = await client.entities.test.list({
         filter: {
@@ -161,7 +168,8 @@ export const HomePage = () => {
                 eq: device
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const totalCompletedResponse = await client.entities.test.list({
         filter:{
@@ -174,7 +182,8 @@ export const HomePage = () => {
                 }
             }
         }
-    })
+    },
+    {readMode:'NODE_LEDGERED',})
 
     const updateProgressResponse = await client.entities.device.update({
         _id: response.items[0]._id,
