@@ -29,16 +29,16 @@ export const DataProvider = ({ children }) => {
 
   useEffect(() => {
     const listTests = async () => {
-      const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED',});
+      const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED'});
       setTestList(listTestsResponse?.items);
     }
     const listDevice = async () => {
-      const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED',});
+      const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED'});
       setDeviceList(listDeviceResponse?.items)
     }
     listTests();
     listDevice();
-  }, [deviceList])
+  }, [])
 
   const dataValue = {
     device: [device, setDevice], 

@@ -98,7 +98,7 @@ export const FormPage = () => {
     // refreshList (i think there is a better way, idk how)
     // regrab the list from client and setTestList
     const refreshList = async () => {
-        const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED',});
+        const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED'});
         setTestList(listTestsResponse?.items);
     }
 

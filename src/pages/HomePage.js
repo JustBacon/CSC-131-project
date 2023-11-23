@@ -45,7 +45,7 @@ export const HomePage = () => {
   }
 
   const refreshList = async () => {
-    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED',});
+    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED'});
     setDeviceList(listDeviceResponse?.items);
   }
 

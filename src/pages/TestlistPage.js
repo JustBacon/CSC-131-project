@@ -18,55 +18,92 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
+import { AuthContext } from '../context/AuthContext';
 
 export const TestlistPage = () => {
 
   const [deviceList, setDeviceList] = useContext(DataContext).deviceList
   const [rowModesModel, setRowModesModel] = useState({});
+  const [currentRole, setCurrentRole] = useContext(AuthContext).currentRole;
+  const [currentUsersEmail, setCurrentUsersEmail] = useContext(AuthContext).currentUsersEmail;
   const deviceNameList = deviceList?.map((deviceName) => deviceName.Device);
-  
+  const { deviceName } = useParams()
+  const [rows, setRows] = useState([])
+
+  useEffect(() => {
+    const getTestRows = async () => {
+      const checkDeviceName = await client.entities.test.list({
+        filter: {
+          Device: {
+            eq: deviceName
+          }
+        }
+      },
+        { readMode: 'NODE_LEDGERED' })
+
+      const someObject = checkDeviceName.items.map(item => {
+        const objectContainer = {};
+        objectContainer._id = item._id
+        objectContainer.id = item.TestID
+        objectContainer.device = item.Device
+        objectContainer.orgassignment = item.OrgAssignment
+        objectContainer.testname = item.TestName
+        objectContainer.testmethod = item.TestMethod
+        objectContainer.notes = item.Notes
+        objectContainer.completed = item.Completed
+        objectContainer.updatedby = item.UpdatedBy
+        return objectContainer
+      })
+
+      setRows(someObject)
+
+
+    }
+    getTestRows();
+  }, []);
+
   const updateDeviceProgress = async (device) => {
     const response = await client.entities.device.list({
-        filter:{
-            Device:{
-                eq: device
-            }
+      filter: {
+        Device: {
+          eq: device
         }
+      }
     },
-    {readMode:'NODE_LEDGERED',})
+      { readMode: 'NODE_LEDGERED', })
 
     const totalDeviceResponse = await client.entities.test.list({
-        filter: {
-            Device: {
-                eq: device
-            }
+      filter: {
+        Device: {
+          eq: device
         }
+      }
     },
-    {readMode:'NODE_LEDGERED',})
+      { readMode: 'NODE_LEDGERED', })
 
     const totalCompletedResponse = await client.entities.test.list({
-        filter:{
-            Device: {
-                eq: device
-            },
-            _and:{
-                Completed:{
-                    eq: true
-                }
-            }
+      filter: {
+        Device: {
+          eq: device
+        },
+        _and: {
+          Completed: {
+            eq: true
+          }
         }
+      }
     },
-    {readMode:'NODE_LEDGERED',})
+      { readMode: 'NODE_LEDGERED', })
 
     const updateProgressResponse = await client.entities.device.update({
-        _id: response.items[0]._id,
-        Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+      _id: response.items[0]._id,
+      Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
     })
 
-    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED',});
+    const listDeviceResponse = await client.entities.device.list({ readMode: 'NODE_LEDGERED', });
     setDeviceList(listDeviceResponse?.items);
     console.log(updateProgressResponse)
-}
+  }
 
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -102,7 +139,7 @@ export const TestlistPage = () => {
     }
   };
 
-  const processRowUpdate = async(newRow, oldRow) => {
+  const processRowUpdate = async (newRow, oldRow) => {
     // console.log(newRow)
     const updateDeviceResponse = await client.entities.test.update({
       _id: newRow._id,
@@ -129,37 +166,6 @@ export const TestlistPage = () => {
     setRowModesModel(newRowModesModel);
   };
 
-  const { deviceName } = useParams()
-  const [rows, setRows] = useState([])
-
-  useEffect(() => {
-    const getTestRows = async () => {
-      const checkDeviceName = await client.entities.test.list({
-        filter: {
-          Device: {
-            eq: deviceName
-          }
-        }
-      },
-      {readMode:'NODE_LEDGERED',})
-      const someObject = checkDeviceName.items.map(item => {
-        const objectContainer = {};
-        objectContainer._id = item._id
-        objectContainer.id = item.TestID
-        objectContainer.device = item.Device
-        objectContainer.orgassignment = item.OrgAssignment
-        objectContainer.testname = item.TestName
-        objectContainer.testmethod = item.TestMethod
-        objectContainer.notes = item.Notes
-        objectContainer.completed = item.Completed
-        objectContainer.updatedby = item.UpdatedBy
-        return objectContainer
-      })
-
-      setRows(someObject)
-    }
-    getTestRows()
-  },[])
 
   const columns = [
     {
@@ -272,19 +278,21 @@ export const TestlistPage = () => {
     <div className="test-list-page">
       <div><h2 id="subtitle-name">Test List for: {deviceName}</h2></div>
       <div className="test-list-data">
-      
-        <Box sx={{ height: 400, width: '100%', borderColor: 'primary.dark', '& .MuiDataGrid-cell:hover': {color: 'primary.main'} }} >
+
+        <Box sx={{ height: 400, width: '100%', borderColor: 'primary.dark', '& .MuiDataGrid-cell:hover': { color: 'primary.main' } }} >
           <Container>
 
             <DataGrid className='test-list-data-table'
               rows={rows}
               columns={columns}
-            components={{Toolbar: () => {
-              return <GridToolbarContainer sx={{justifyContent: 'flex-end'}}>
-                <GridToolbarColumnsButton />
-                <GridToolbarFilterButton />
-              </GridToolbarContainer>
-            }}}
+              components={{
+                Toolbar: () => {
+                  return <GridToolbarContainer sx={{ justifyContent: 'flex-end' }}>
+                    <GridToolbarColumnsButton />
+                    <GridToolbarFilterButton />
+                  </GridToolbarContainer>
+                }
+              }}
               editMode='row'
               rowModesModel={rowModesModel}
               onRowModesModelChange={handleRowModesModelChange}
@@ -292,7 +300,7 @@ export const TestlistPage = () => {
               processRowUpdate={processRowUpdate}
               onProcessRowUpdateError={onProcessRowUpdateError}
               initialState={{
-              sorting: { sortModel: [{field: 'id', sort: 'asc'}]},
+                sorting: { sortModel: [{ field: 'id', sort: 'asc' }] },
                 columns: {
                   columnVisibilityModel: {
                     // Hide columns status and traderName, the other columns will remain visible
@@ -313,7 +321,7 @@ export const TestlistPage = () => {
         </Box>
       </div>
       <div>
-        <Link to={{pathname: "/form", state: {deviceName}}}><Button variant="primary"> Add a test </Button></Link>
+        <Link to={{ pathname: "/form", state: { deviceName } }}><Button variant="primary"> Add a test </Button></Link>
       </div>
     </div>
   );
