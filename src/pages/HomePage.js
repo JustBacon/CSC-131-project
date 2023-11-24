@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/App.css';
 import { Button, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
 import { Link } from 'react-router-dom';
@@ -19,7 +19,7 @@ export const HomePage = () => {
   const [popupButton, setPopupButton] = useState(false)
   const [tempDevice, setTempDevice] = useState("")
   const [newDevice, setNewDevice] = useContext(DataContext).newDevice
-  
+  const refreshList = useContext(DataContext).refreshList
 
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
@@ -27,10 +27,9 @@ export const HomePage = () => {
         Device: {
           eq: newDevice
         }
-      }
-    },
-    {readMode:'NODE_LEDGERED',})
-
+      },readMode: 'NODE_LEDGERED'
+    })
+    console.log(checkDeviceName)
     if (checkDeviceName.items.length === 0) {
       const addDeviceResponse = await client.entities.device.add({
         Device: newDevice,
@@ -38,22 +37,19 @@ export const HomePage = () => {
         Progress: 0
       })
       console.log(addDeviceResponse)
+      console.log(addDeviceResponse.result)
+      const newArray = [...deviceList, ...[addDeviceResponse.result]]
+      setDeviceList(newArray)
     }
     setNewDevice("")
-    refreshList()
-    console.log(newDevice)
-  }
-
-  const refreshList = async () => {
-    const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED'});
-    setDeviceList(listDeviceResponse?.items);
   }
 
   const handleDelete = async () => {
     console.log(tempDevice)
     deleteAllTest(tempDevice)// Device
     await deleteDevice(tempDevice)
-    refreshList()
+    setPopupButton(false)
+    // refreshList()
   }
 
   const deleteDevice = async (value) => {
@@ -62,11 +58,13 @@ export const HomePage = () => {
         Device: {
           eq: value,
         },
-      },
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const deleteDevice = await client.entities.device.remove(checkResponse.items[0]._id)
+    console.log(checkResponse)
+    var newArray = deviceList.filter(item => item._id !== checkResponse.items[0]._id);
+    setDeviceList(newArray)
     console.log(deleteDevice)
   }
 
@@ -76,9 +74,8 @@ export const HomePage = () => {
         Device: {
           eq: value,
         },
-      },
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     for (let i = 0; i < checkResponseTest.items.length; i++) {
       const deleteTest = await client.entities.test.remove(checkResponseTest.items[i]._id)
@@ -93,9 +90,8 @@ export const HomePage = () => {
         Device: {
           contains: value
         }
-      }
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
     console.log(checkDeviceName.items)
     setDeviceList(checkDeviceName.items)
   }
@@ -114,9 +110,8 @@ export const HomePage = () => {
         Device: {
           eq: tempDevice,
         },
-      },
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
     if (newDevice !== "") {
       for (let i = 0; i < checkResponseTest.items.length; i++) {
         const updateTestResponse = await client.entities.test.update({
@@ -131,9 +126,8 @@ export const HomePage = () => {
         Device: {
           eq: tempDevice,
         },
-      },
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     if (newDevice !== "") {
       const updateDeviceResponse = await client.entities.device.update({
@@ -154,43 +148,40 @@ export const HomePage = () => {
 
   const updateDeviceProgress = async (device) => {
     const response = await client.entities.device.list({
-        filter:{
-            Device:{
-                eq: device
-            }
+      filter: {
+        Device: {
+          eq: device
         }
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const totalDeviceResponse = await client.entities.test.list({
-        filter: {
-            Device: {
-                eq: device
-            }
+      filter: {
+        Device: {
+          eq: device
         }
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const totalCompletedResponse = await client.entities.test.list({
-        filter:{
-            Device: {
-                eq: device
-            },
-            _and:{
-                Completed:{
-                    eq: true
-                }
-            }
+      filter: {
+        Device: {
+          eq: device
+        },
+        _and: {
+          Completed: {
+            eq: true
+          }
         }
-    },
-    {readMode:'NODE_LEDGERED',})
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const updateProgressResponse = await client.entities.device.update({
-        _id: response.items[0]._id,
-        Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+      _id: response.items[0]._id,
+      Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
     })
     console.log(updateProgressResponse)
-}
+  }
 
   return (
     <div>

@@ -116,18 +116,16 @@ export const FormPage = () => {
                 Device:{
                     eq: device
                 }
-            }
-        },
-        {readMode:'NODE_LEDGERED',})
+            },readMode: 'NODE_LEDGERED'
+        })
 
         const totalDeviceResponse = await client.entities.test.list({
             filter: {
                 Device: {
                     eq: device
                 }
-            }
-        },
-        {readMode:'NODE_LEDGERED',})
+            },readMode: 'NODE_LEDGERED'
+        })
 
         const totalCompletedResponse = await client.entities.test.list({
             filter:{
@@ -139,9 +137,8 @@ export const FormPage = () => {
                         eq: true
                     }
                 }
-            }
-        },
-        {readMode:'NODE_LEDGERED',})
+            },readMode: 'NODE_LEDGERED'
+        })
 
         const updateProgressResponse = await client.entities.device.update({
             _id: response.items[0]._id,

@@ -40,6 +40,14 @@ export const DataProvider = ({ children }) => {
     listDevice();
   }, [])
 
+  // const refreshList = async () => {
+  //   const listDeviceResponse = await client.entities.device.list({ readMode: 'NODE_LEDGERED' });
+  //   console.log(listDeviceResponse)
+  //   console.log(deviceList)
+  //   setDeviceList(listDeviceResponse.items);
+  //   console.log("REFRESH DEVICE LIST!")
+  // }
+
   const dataValue = {
     device: [device, setDevice], 
     testID: [testID, setTestID], 
@@ -53,7 +61,8 @@ export const DataProvider = ({ children }) => {
     status: [status, setStatus],
     progress: [progress, setProgress],
     deviceList: [deviceList, setDeviceList],
-    newDevice: [newDevice, setNewDevice]
+    newDevice: [newDevice, setNewDevice],
+    // refreshList: refreshList
   }
 
   return (

@@ -37,9 +37,8 @@ export const TestlistPage = () => {
           Device: {
             eq: deviceName
           }
-        }
-      },
-        { readMode: 'NODE_LEDGERED' })
+        },readMode: 'NODE_LEDGERED'
+      })
 
       const someObject = checkDeviceName.items.map(item => {
         const objectContainer = {};
@@ -68,18 +67,16 @@ export const TestlistPage = () => {
         Device: {
           eq: device
         }
-      }
-    },
-      { readMode: 'NODE_LEDGERED', })
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const totalDeviceResponse = await client.entities.test.list({
       filter: {
         Device: {
           eq: device
         }
-      }
-    },
-      { readMode: 'NODE_LEDGERED', })
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const totalCompletedResponse = await client.entities.test.list({
       filter: {
@@ -91,9 +88,8 @@ export const TestlistPage = () => {
             eq: true
           }
         }
-      }
-    },
-      { readMode: 'NODE_LEDGERED', })
+      },readMode: 'NODE_LEDGERED'
+    })
 
     const updateProgressResponse = await client.entities.device.update({
       _id: response.items[0]._id,
