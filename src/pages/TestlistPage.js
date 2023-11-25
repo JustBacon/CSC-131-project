@@ -29,17 +29,19 @@ export const TestlistPage = () => {
   const deviceNameList = deviceList?.map((deviceName) => deviceName.Device);
   const { deviceName } = useParams()
   const [rows, setRows] = useState([])
+  const [numberCompleted, setNumberCompleted] = useState(0)
 
   useEffect(() => {
+
     const getTestRows = async () => {
       const checkDeviceName = await client.entities.test.list({
         filter: {
           Device: {
             eq: deviceName
           }
-        },readMode: 'NODE_LEDGERED'
+        }, readMode: 'NODE_LEDGERED'
       })
-
+      // setRows(checkDeviceName.items)
       const someObject = checkDeviceName.items.map(item => {
         const objectContainer = {};
         objectContainer._id = item._id
@@ -53,52 +55,64 @@ export const TestlistPage = () => {
         objectContainer.updatedby = item.UpdatedBy
         return objectContainer
       })
-
+      setNumberCompleted(checkDeviceName.items.filter(item => item.Completed === true).length)
+      // console.log(checkDeviceName.items.filter(item => item.Completed === true).length)
       setRows(someObject)
-
-
     }
     getTestRows();
+
   }, []);
 
-  const updateDeviceProgress = async (device) => {
+  const updateDeviceProgress = async (booleanValue) => {
+    let progress = 0
+    if(booleanValue){
+      setNumberCompleted(numberCompleted+1)
+      progress = parseInt(((numberCompleted + 1)/rows.length)*100)
+    }else{
+      setNumberCompleted(numberCompleted-1)
+      progress = parseInt(((numberCompleted - 1)/rows.length)*100)
+    }
+    console.log(progress)
     const response = await client.entities.device.list({
       filter: {
         Device: {
-          eq: device
+          eq: deviceName
         }
-      },readMode: 'NODE_LEDGERED'
-    })
-
-    const totalDeviceResponse = await client.entities.test.list({
-      filter: {
-        Device: {
-          eq: device
-        }
-      },readMode: 'NODE_LEDGERED'
-    })
-
-    const totalCompletedResponse = await client.entities.test.list({
-      filter: {
-        Device: {
-          eq: device
-        },
-        _and: {
-          Completed: {
-            eq: true
-          }
-        }
-      },readMode: 'NODE_LEDGERED'
+      }, readMode: 'NODE_LEDGERED'
     })
 
     const updateProgressResponse = await client.entities.device.update({
       _id: response.items[0]._id,
-      Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
+      Progress: progress
+    })
+    console.log(updateProgressResponse)
+
+    var index = deviceList.findIndex(item => item._id === response.items[0]._id)
+    deviceList[index].Progress = progress
+  }
+  const updateDeviceProgressDelete = async () => {
+    let progress = 0
+    
+    setNumberCompleted(numberCompleted-1)
+    progress = parseInt(((numberCompleted - 1)/(rows.length-1))*100)
+    
+    console.log(progress)
+    const response = await client.entities.device.list({
+      filter: {
+        Device: {
+          eq: deviceName
+        }
+      }, readMode: 'NODE_LEDGERED'
     })
 
-    const listDeviceResponse = await client.entities.device.list({ readMode: 'NODE_LEDGERED', });
-    setDeviceList(listDeviceResponse?.items);
+    const updateProgressResponse = await client.entities.device.update({
+      _id: response.items[0]._id,
+      Progress: progress
+    })
     console.log(updateProgressResponse)
+
+    var index = deviceList.findIndex(item => item._id === response.items[0]._id)
+    deviceList[index].Progress = progress
   }
 
   const handleRowEditStop = (params, event) => {
@@ -108,7 +122,6 @@ export const TestlistPage = () => {
   };
 
   const handleEditClick = (id) => () => {
-    console.log(id)
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
@@ -118,7 +131,7 @@ export const TestlistPage = () => {
 
   const handleDeleteClick = (item) => async () => {
     const removeDeviceResponse = await client.entities.test.remove(item.row._id)
-    updateDeviceProgress(item.row.device)
+    updateDeviceProgressDelete()
     console.log(removeDeviceResponse)
     setRows(rows.filter((row) => row._id !== item.row._id));
   };
@@ -136,7 +149,6 @@ export const TestlistPage = () => {
   };
 
   const processRowUpdate = async (newRow, oldRow) => {
-    // console.log(newRow)
     const updateDeviceResponse = await client.entities.test.update({
       _id: newRow._id,
       Device: newRow.device,
@@ -147,9 +159,11 @@ export const TestlistPage = () => {
       UpdatedBy: newRow.updatedby
     })
     console.log(updateDeviceResponse)
-    updateDeviceProgress(newRow.device)
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    
+    updateDeviceProgress(newRow.completed)
+    
     return updatedRow;
   };
 
@@ -317,7 +331,7 @@ export const TestlistPage = () => {
         </Box>
       </div>
       <div>
-        <Link to={{ pathname: "/form", state: { deviceName } }}><Button variant="primary"> Add a test </Button></Link>
+        <Link to={{ pathname: "/form" }} state= {{name:deviceName,numCompleted:numberCompleted,total:rows.length}}><Button variant="primary"> Add a test </Button></Link>
       </div>
     </div>
   );

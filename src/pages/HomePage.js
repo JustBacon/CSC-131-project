@@ -21,6 +21,13 @@ export const HomePage = () => {
   const [newDevice, setNewDevice] = useContext(DataContext).newDevice
   const refreshList = useContext(DataContext).refreshList
 
+  // useEffect(() => {
+  //   const response = async () =>{ await client.entities.device.list({readMode: 'NODE_LEDGERED'})}
+  //   console.log(response)
+  //   setDeviceList(response.item)
+
+  // }, []);
+
   const addDevice = async () => {
     const checkDeviceName = await client.entities.device.list({
       filter: {
@@ -41,6 +48,7 @@ export const HomePage = () => {
       const newArray = [...deviceList, ...[addDeviceResponse.result]]
       setDeviceList(newArray)
     }
+    console.log(deviceList)
     setNewDevice("")
   }
 
