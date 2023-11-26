@@ -24,24 +24,32 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      checkIfAdmin(user);
+      getCurrentRole(user);
     });
     if(isAdmin){
       setIsAdmin(true);
     }
-    checkIfAdmin(user);
 
     return () => unsubscribe();
   }, []);
 
-  const checkIfAdmin = async() => {
+  const checkIfAdmin = async(user) => {
     try {
       const docRef = doc(db, "users", user.uid)
       const docSnap = await getDoc(docRef)
-      console.log(user.uid)
-      console.log(docSnap.data().roles[0])
-      console.log(isAdmin)
       docSnap.data().roles[0] === "admin" ? setIsAdmin(true) : setIsAdmin(false)
+    }catch(e){
+      // ignoring some errors
+      // it will console log saying user is undefined
+    }
+  }
 
+  const getCurrentRole = async(user) => {
+    try {
+      const docRef = doc(db, "users", user.uid)
+      const docSnap = await getDoc(docRef)
+      setCurrentRole(docSnap.data().roles[0])
     }catch(e){
       // ignoring some errors
       // it will console log saying user is undefined

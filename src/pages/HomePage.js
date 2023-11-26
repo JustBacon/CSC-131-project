@@ -8,6 +8,7 @@ import { DataContext } from '../context/dataContext';
 import { Link } from 'react-router-dom';
 import { DeviceNameInput } from '../component/deviceNameInput';
 import { PopupForm } from '../component/PopupForm';
+import { AuthContext } from '../context/AuthContext';
 
 export const { client } = vendiaClient();
 
@@ -20,6 +21,8 @@ export const HomePage = () => {
   const [tempDevice, setTempDevice] = useState("")
   const [newDevice, setNewDevice] = useContext(DataContext).newDevice
   const refreshList = useContext(DataContext).refreshList
+  const [currentRole, setCurrentRole] = useContext(AuthContext).currentRole;
+  const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
 
   // useEffect(() => {
   //   const response = async () =>{ await client.entities.device.list({readMode: 'NODE_LEDGERED'})}
@@ -209,10 +212,11 @@ export const HomePage = () => {
       </div>
 
       <div className="container">
+        {isAdmin?
         <div className="add-device-button-div">
           <DeviceNameInput id="add-device-input" />
           <Button id="add-device-button" variant="primary" onClick={addDevice}>New Device</Button>
-        </div>
+        </div> : null}
         {deviceList?.map((item, index) => (
           <div key={index} className="item-box">
             <div className="item-device-homepage">
@@ -226,7 +230,7 @@ export const HomePage = () => {
             <Link to={`/testlist/${item.Device}`} className="custom-link">
               <Button className="button-shadow-effects" variant="secondary">View Test</Button>
             </Link>
-            <Button className="delete-device-button" id={item.Device} onClick={handleEditButton}>Edit</Button>
+            {isAdmin ? <Button className="delete-device-button" id={item.Device} onClick={handleEditButton}>Edit</Button> : null}
             {/* <Button className="delete-device-button" variant="secondary" id={item.Device} onClick={handleDelete}>Delete</Button> */}
           </div>
         ))}
