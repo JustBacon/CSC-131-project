@@ -90,11 +90,15 @@ export const TestlistPage = () => {
     var index = deviceList.findIndex(item => item._id === response.items[0]._id)
     deviceList[index].Progress = progress
   }
-  const updateDeviceProgressDelete = async () => {
+  const updateDeviceProgressDelete = async (booleanValue) => {
     let progress = 0
     
-    setNumberCompleted(numberCompleted-1)
-    progress = parseInt(((numberCompleted - 1)/(rows.length-1))*100)
+    if(booleanValue){
+      setNumberCompleted(numberCompleted-1)
+      progress = parseInt(((numberCompleted - 1)/(rows.length-1))*100)
+    }else{
+      progress = parseInt(((numberCompleted)/(rows.length-1))*100)
+    }
     
     console.log(progress)
     const response = await client.entities.device.list({
@@ -131,7 +135,7 @@ export const TestlistPage = () => {
 
   const handleDeleteClick = (item) => async () => {
     const removeDeviceResponse = await client.entities.test.remove(item.row._id)
-    updateDeviceProgressDelete()
+    updateDeviceProgressDelete(item.row.completed)
     console.log(removeDeviceResponse)
     setRows(rows.filter((row) => row._id !== item.row._id));
   };
