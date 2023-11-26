@@ -6,6 +6,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState, useContext } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { db } from '../configuration/firebase'
+import { doc, updateDoc, getDoc, getDocs, arrayUnion, collection } from 'firebase/firestore';
 
 export const LoginPage = () => {
     const [email, setEmail] = useContext(AuthContext).email;
@@ -13,6 +15,9 @@ export const LoginPage = () => {
     const [user, setUser] = useContext(AuthContext).user;
     const navigate = useNavigate();
     const [error, setError] = useState(null);
+    const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
+    const [currentUsersEmail, setCurrentUsersEmail] = useContext(AuthContext).currentUsersEmail;
+    const [currentRole, setCurrentRole] = useContext(AuthContext).currentRole;
 
     const signIn = async () => {
         try {
@@ -20,10 +25,25 @@ export const LoginPage = () => {
             const user = userCredential.user;
             localStorage.setItem('token', user.accessToken);
             localStorage.setItem('user', JSON.stringify(user));
+            setCurrentUsersEmail(email);
             setEmail("");
             setPassword("");
             setUser(user); 
             setError(null);
+            console.log(user);
+            try {
+                const docRef = doc(db, "users", user.uid)
+                const docSnap = await getDoc(docRef)
+                console.log(user.uid)
+                console.log(docSnap.data().roles[0])
+                console.log(isAdmin)
+                setCurrentRole(docSnap.data().roles[0])  
+                docSnap.data().roles[0] === "admin" ? setIsAdmin(true) : setIsAdmin(false)
+            }catch(e){
+                // ignoring some errors
+                // it will console log saying user is undefined
+            }
+            
             navigate("/"); 
         } catch (err) {
             setError(err.message);

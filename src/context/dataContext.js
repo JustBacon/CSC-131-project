@@ -29,16 +29,24 @@ export const DataProvider = ({ children }) => {
 
   useEffect(() => {
     const listTests = async () => {
-      const listTestsResponse = await client.entities.test.list();
+      const listTestsResponse = await client.entities.test.list({readMode:'NODE_LEDGERED'});
       setTestList(listTestsResponse?.items);
     }
     const listDevice = async () => {
-      const listDeviceResponse = await client.entities.device.list();
+      const listDeviceResponse = await client.entities.device.list({readMode:'NODE_LEDGERED'});
       setDeviceList(listDeviceResponse?.items)
     }
     listTests();
     listDevice();
-  }, [deviceList])
+  }, [])
+
+  // const refreshList = async () => {
+  //   const listDeviceResponse = await client.entities.device.list({ readMode: 'NODE_LEDGERED' });
+  //   console.log(listDeviceResponse)
+  //   console.log(deviceList)
+  //   setDeviceList(listDeviceResponse.items);
+  //   console.log("REFRESH DEVICE LIST!")
+  // }
 
   const dataValue = {
     device: [device, setDevice], 
@@ -53,7 +61,8 @@ export const DataProvider = ({ children }) => {
     status: [status, setStatus],
     progress: [progress, setProgress],
     deviceList: [deviceList, setDeviceList],
-    newDevice: [newDevice, setNewDevice]
+    newDevice: [newDevice, setNewDevice],
+    // refreshList: refreshList
   }
 
   return (

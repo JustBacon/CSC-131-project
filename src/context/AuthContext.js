@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState({});
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentRole, setCurrentRole] = useState("");
+  const [currentUsersEmail, setCurrentUsersEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     checkIfAdmin(user);
 
     return () => unsubscribe();
-  }, [user]);
+  }, []);
 
   const checkIfAdmin = async() => {
     try {
@@ -59,6 +61,8 @@ export const AuthProvider = ({ children }) => {
 
   const logoutButton = () => {
     logout();
+    setCurrentRole("");
+    setCurrentUsersEmail("");
     navigate("/login");
   }
 
@@ -67,6 +71,8 @@ export const AuthProvider = ({ children }) => {
     password: [password, setPassword],
     user: [user, setUser],
     isAdmin: [isAdmin, setIsAdmin],
+    currentRole: [currentRole, setCurrentRole],
+    currentUsersEmail: [currentUsersEmail, setCurrentUsersEmail],
     logoutButton: logoutButton,
   }
   return (

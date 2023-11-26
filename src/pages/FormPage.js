@@ -1,18 +1,18 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { vendiaClient } from '../vendiaClient';
 import { DataContext } from '../context/dataContext';
-import { DeviceNameDropDown } from '../component/deviceNameDropDown';
 import '../styles/App.css';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useLocation } from 'react-router-dom';
 
 const { client } = vendiaClient();
 
 export const FormPage = () => {
 
     // data for both test and device
-    // eslint-disable-next-line
-    const [device, setDevice] = useContext(DataContext).device
+    
+    const [deviceList, setDeviceList] = useContext(DataContext).deviceList
 
     // data for test
     const [testID, setTestID] = useContext(DataContext).testID
@@ -23,41 +23,55 @@ export const FormPage = () => {
     const [notes, setNotes] = useContext(DataContext).notes
     const [completed, setCompleted] = useContext(DataContext).completed
     const [updatedBy, setUpdatedBy] = useContext(DataContext).updatedBy
+    const data = useLocation();
+    const [numberCompleted, setNumberCompleted] = useState(data.state.numCompleted)
+    const [total, setTotal] = useState(data.state.total)
 
     // function to add device based on schema
     // need Device, TestID, OrgAssignment, TestName, Notes, Completed, UpdatedBy
     const addTest = async () => {
+
+        let progress = 0
+        // add test
         const addTestResponse = await client.entities.test.add({
-            Device: device,
+            Device: data.state.name, // grabbed from Testlistpage when you click addtest button
             TestID: testID,
             OrgAssignment: orgAssignment,
             TestName: testName,
             TestMethod: testMethod,
             Notes: notes,
-            Completed: false,
+            Completed: completed,
             UpdatedBy: updatedBy
         })
-        console.log(addTestResponse)
-        updateDeviceProgress()
-        refreshList()
-    }
-
-    const updateTest = async (event) => {
-        if (device !== "") {
-            const updateDeviceResponse = await client.entities.test.update({
-                _id: event.target.id,
-                Device: device,
-                TestID: testID,
-                OrgAssignment: orgAssignment,
-                TestName: testName,
-                TestMethod: testMethod,
-                Notes: notes,
-                Completed: completed,
-                UpdatedBy: updatedBy
-            })
-            console.log(updateDeviceResponse)
-            refreshList()
+        setTotal(total+1)
+        console.log(completed)
+        if (completed) {
+            setNumberCompleted(numberCompleted + 1)
+            progress = parseInt(((numberCompleted + 1) / (total + 1)) * 100)
+        } else {
+            setNumberCompleted(numberCompleted)
+            progress = parseInt(((numberCompleted) / (total + 1)) * 100)
         }
+
+        const response = await client.entities.device.list({
+            filter: {
+                Device: {
+                    eq: data.state.name
+                }
+            }, readMode: 'NODE_LEDGERED'
+        })
+
+        const updateProgressResponse = await client.entities.device.update({
+            _id: response.items[0]._id,
+            Progress: progress
+        })
+        console.log(updateProgressResponse)
+        var index = deviceList.findIndex(item => item._id === response.items[0]._id)
+        deviceList[index].Progress = progress
+
+        console.log(addTestResponse)
+        setCompleted(false)
+        // updateDeviceProgress()
     }
 
     const handletestIDChange = (event) => {
@@ -94,67 +108,16 @@ export const FormPage = () => {
         addTest();
     }
 
-
-    // refreshList (i think there is a better way, idk how)
-    // regrab the list from client and setTestList
-    const refreshList = async () => {
-        const listTestsResponse = await client.entities.test.list();
-        setTestList(listTestsResponse?.items);
-    }
-
-    // When button is clicked remove the test
-    // function to remove a device
-    const deleteTest = async (event) => {
-        const removeDeviceResponse = await client.entities.test.remove(event.target.id)
-        console.log(removeDeviceResponse)
-        refreshList()
-    }
-
-    const updateDeviceProgress = async () => {
-        const response = await client.entities.device.list({
-            filter:{
-                Device:{
-                    eq: device
-                }
-            }
-        })
-
-        const totalDeviceResponse = await client.entities.test.list({
-            filter: {
-                Device: {
-                    eq: device
-                }
-            }
-        })
-
-        const totalCompletedResponse = await client.entities.test.list({
-            filter:{
-                Device: {
-                    eq: device
-                },
-                _and:{
-                    Completed:{
-                        eq: true
-                    }
-                }
-            }
-        })
-
-        const updateProgressResponse = await client.entities.device.update({
-            _id: response.items[0]._id,
-            Progress: parseInt((totalCompletedResponse.items.length / totalDeviceResponse.items.length) * 100) || 0
-        })
-        console.log(updateProgressResponse)
-    }
-
     return (
         <div>
             <div><h2 id="subtitle-name">Form Page: add a Test</h2></div>
             <div>
                 <form autoComplete="off" onSubmit={handleSubmit}>
                     <div className="general-div">
-                        <h5>Choose a device: </h5>
-                        <DeviceNameDropDown />
+                        {/* <h5>Choose a device: </h5>
+                        <DeviceNameDropDown data={data} /> */}
+                        <p>{data.state.numCompleted}</p>
+                        <p>{JSON.stringify(data.state)}</p>
                     </div>
                     <div className="general-div">
                         <h5>Test number: </h5>
@@ -232,16 +195,7 @@ export const FormPage = () => {
 
                     <input type="submit" />
                 </form>
-                <div className="device-number-div">
-                    {testList?.map((item) => (
-                        <div key={item._id}>
-                            {item.Device}:
-                            <Button className="delete-device-button" variant="secondary" id={item._id} onClick={deleteTest}>x</Button>
-                            <Button className="update-device-button" variant="secondary" id={item._id} onClick={updateTest}>update</Button>
-                        </div>
-                    )
-                    )}
-                </div>
+
             </div>
         </div>
     )
