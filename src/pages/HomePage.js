@@ -60,7 +60,6 @@ export const HomePage = () => {
     deleteAllTest(tempDevice)// Device
     await deleteDevice(tempDevice)
     setPopupButton(false)
-    // refreshList()
   }
 
   const deleteDevice = async (value) => {
@@ -148,7 +147,7 @@ export const HomePage = () => {
       console.log(updateDeviceResponse)
     }
     setNewDevice("")
-    refreshList()
+    // fix (need refresh name on homepage)
   }
 
   const handleEditButton = (event) => {

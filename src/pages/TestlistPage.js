@@ -167,11 +167,11 @@ export const TestlistPage = () => {
       TestMethod: newRow.testmethod,
       Notes: newRow.notes,
       Completed: newRow.completed,
-      UpdatedBy: newRow.updatedby
+      UpdatedBy: currentUsersEmail
     })
+    newRow.updatedby = currentUsersEmail
     console.log(updateDeviceResponse)
     const updatedRow = { ...newRow, isNew: false };
-    
     updateDeviceProgress(newRow.completed, oldRow.completed)
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
 
@@ -305,7 +305,6 @@ export const TestlistPage = () => {
 
   return (
     <div className="test-list-page">
-      <button onClick={() => console.log(currentUsersEmail)}>test</button>
       <div><h2 id="subtitle-name">Test List for: {deviceName}</h2></div>
       <div className="test-list-data">
 
