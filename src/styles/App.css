@@ -67,7 +67,19 @@ div[role="tooltip"] {
 .general-input-box:hover{
   box-shadow: 0 0 5px black; 
 }
-
+.same-line-container{
+  text-align: left;
+  padding: 7px;
+}
+.same-line-div{
+  display: inline-block;
+  padding-right: 10px;
+}
+.center-items{
+  display: flex;
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+}
 .title-header img {
   width: 70px;
   height: 70px;
@@ -344,7 +356,30 @@ li img {
   padding-top: 10px;
   padding-bottom: 50px;
 }
-
+.add-test-form{
+  margin: auto;
+  margin-top: 50px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(218, 218, 218);
+  width: fit-content;
+  border: 2px solid black;
+  box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+.add-test-form:hover{
+  box-shadow: 0 0 16px rgba(33,33,33,.2);
+  transform: scale(1.02); 
+}
+.same-line-container:hover{
+  box-shadow: 0 0 16px rgba(33,33,33,.2);
+  transform: scale(1.07); 
+}
+.general-hover-button:hover{
+  box-shadow: 0 0 16px rgba(33,33,33,.2);
+  transform: scale(1.07); 
+  padding: auto;
+}
 .signup-page-content {
   margin: auto;
   padding: 10px;
