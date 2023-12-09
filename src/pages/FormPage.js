@@ -194,13 +194,19 @@ export const FormPage = () => {
                     </div>
                     <div className="same-line-container">
                         <h5 className="same-line-div">Testing notes: </h5>
-                        <input
+                        <textarea
                             className="same-line-div"
-                            type="text"
                             name="testNotes"
                             placeholder="Test Notes"
                             value={notes}
                             onChange={handleNotes}
+                            style={{
+                                width: '400px', // Adjust the width as needed
+                                height: '80px', // Adjust the height as needed
+                                padding: '8px', // Optional: Add padding for better aesthetics
+                                fontSize: '16px', // Optional: Adjust the font size
+                                overflowY: 'auto', // Add a vertical scrollbar when content exceeds height
+                            }}
                         />
                     </div>
                     <div className="same-line-container">
