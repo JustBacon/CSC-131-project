@@ -359,6 +359,7 @@ li img {
 .add-test-form{
   margin: auto;
   margin-top: 70px;
+  border-radius: 12px;
   padding: 10px;
   justify-content: center;
   align-items: center;
@@ -389,9 +390,10 @@ li img {
 .signup-page-content {
   margin: auto;
   padding: 10px;
-  border: 5px solid black;
+  border: 3px solid black;
   justify-content: center;
   align-items: center;
+  border-radius: 7px;
   /* position: absolute;
   left: 50%;
   top: 40%;
