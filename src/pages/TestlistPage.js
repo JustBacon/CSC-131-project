@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { DataGrid, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton, GridToolbarExport} from '@mui/x-data-grid';
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { client } from '../context/dataContext';
@@ -304,6 +304,7 @@ export const TestlistPage = () => {
                   return <GridToolbarContainer sx={{ justifyContent: 'flex-end' }}>
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton />
+                    <GridToolbarExport />
                   </GridToolbarContainer>
                 }
               }}
