@@ -334,7 +334,7 @@ export const TestlistPage = () => {
           </Container>
         </Box>
       </div>
-      <div>
+      <div className="add-new-test-button">
         <Link to={{ pathname: "/form" }} state= {{name:deviceName,numCompleted:numberCompleted,total:rows.length}}><Button variant="primary"> Add a test </Button></Link>
       </div>
     </div>
