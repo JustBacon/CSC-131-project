@@ -1,6 +1,6 @@
 # Algorithm Allies Team 6
     Resmey Austin Mann
-    Bryce C
+    Bryce Chao
     Christian Buco
     Steven Ngo
     Tony Mai
