@@ -107,21 +107,48 @@ export const FormPage = () => {
         event.preventDefault();
         addTest();
     }
+    
+    //converts the json into a string and then outputs it with a new line using regex
+    const convertObjectToString = (jsonObject) => {
+        const jsonString = JSON.stringify(jsonObject, (key, value) => {
+          if (typeof value === 'string') {
+            return value; // Preserve string values without modification
+          }
+          return key + ': ' + JSON.stringify(value);
+        }, 2);
+    
+        const stringWithoutBraces = jsonString.substring(4, jsonString.length -2);
+    
+        return stringWithoutBraces
+            .replace(/"([^"]+)":/g, '$1: ')
+            .replace(/"/g, '')
+            .replace(/\\/g, '')
+            .replace(/,/g, '\n')
+            .replace("numCompleted", "Tests Completed")
+            .replace("total", "Number of Tests")
+            .replace("name", "Device Name")
+    };
+    //variable with call that is used in the jsx
+    const jsonString = convertObjectToString(data.state);
 
     return (
-        <div>
+        <div className="add-test-form">
             <div><h2 id="subtitle-name">Form Page: add a Test</h2></div>
-            <div>
+            <div className="center-items">
                 <form autoComplete="off" onSubmit={handleSubmit}>
-                    <div className="general-div">
+                    <div className="same-line-container">
                         {/* <h5>Choose a device: </h5>
                         <DeviceNameDropDown data={data} /> */}
-                        <p>{data.state.numCompleted}</p>
-                        <p>{JSON.stringify(data.state)}</p>
+                        {/*<p>{data.state.numCompleted}</p>*/}
+                    
+                        <h5>Device details:</h5>
+                        <div style={{ whiteSpace: 'pre-line' }}>{jsonString}</div>
+                    
                     </div>
-                    <div className="general-div">
-                        <h5>Test number: </h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Test number: </h5>
                         <input
+                            className="same-line-div"
                             type="number"
                             pattern="[0-9]*"
                             name="testID"
@@ -129,9 +156,10 @@ export const FormPage = () => {
                             onChange={handletestIDChange}
                         />
                     </div>
-                    <div className="general-div">
-                        <h5>Organization name: </h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Organization name: </h5>
                         <input
+                            className="same-line-div"
                             type="text"
                             name="orgAssignment"
                             placeholder="Org Assignment"
@@ -140,9 +168,10 @@ export const FormPage = () => {
                             required
                         />
                     </div>
-                    <div className="general-div">
-                        <h5>Test name:</h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Test name:</h5>
                         <input
+                            className="same-line-div"
                             type="text"
                             name="testName"
                             placeholder="Test Name"
@@ -151,9 +180,10 @@ export const FormPage = () => {
                             required
                         />
                     </div>
-                    <div className="general-div">
-                        <h5>Test Method: </h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Test Method: </h5>
                         <input
+                            className="same-line-div"
                             type="text"
                             name="testMethod"
                             placeholder="Test Method"
@@ -162,28 +192,37 @@ export const FormPage = () => {
                             required
                         />
                     </div>
-                    <div className="general-div">
-                        <h5>Testing notes: </h5>
-                        <input
-                            type="text"
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Testing notes: </h5>
+                        <textarea
+                            className="same-line-div"
                             name="testNotes"
                             placeholder="Test Notes"
                             value={notes}
                             onChange={handleNotes}
+                            style={{
+                                width: '400px', // Adjust the width as needed
+                                height: '80px', // Adjust the height as needed
+                                padding: '8px', // Optional: Add padding for better aesthetics
+                                fontSize: '16px', // Optional: Adjust the font size
+                                overflowY: 'auto', // Add a vertical scrollbar when content exceeds height
+                            }}
                         />
                     </div>
-                    <div className="general-div">
-                        <h5>Mark: </h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Mark: </h5>
                         <input
+                            className="same-line-div"
                             type="checkbox"
                             value={completed}
                             onChange={handleCompleted}
                         />
                         <span>Completed</span>
                     </div>
-                    <div className="general-div">
-                        <h5>Your name: </h5>
+                    <div className="same-line-container">
+                        <h5 className="same-line-div">Your name: </h5>
                         <input
+                            className="same-line-div"
                             type="text"
                             name="testupdatedBy"
                             placeholder="Updated by"
@@ -192,8 +231,9 @@ export const FormPage = () => {
                             required
                         />
                     </div>
-
-                    <input type="submit" />
+                    <div>
+                        <input type="submit" className="general-hover-button"/>
+                    </div>
                 </form>
 
             </div>
