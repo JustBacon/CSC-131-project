@@ -30,13 +30,10 @@ export const LoginPage = () => {
             setPassword("");
             setUser(user); 
             setError(null);
-            console.log(user);
             try {
                 const docRef = doc(db, "users", user.uid)
                 const docSnap = await getDoc(docRef)
-                console.log(user.uid)
                 console.log(docSnap.data().roles[0])
-                console.log(isAdmin)
                 setCurrentRole(docSnap.data().roles[0])  
                 docSnap.data().roles[0] === "admin" ? setIsAdmin(true) : setIsAdmin(false)
             }catch(e){

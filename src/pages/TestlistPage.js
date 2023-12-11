@@ -30,6 +30,7 @@ export const TestlistPage = () => {
   const { deviceName } = useParams()
   const [rows, setRows] = useState([])
   const [numberCompleted, setNumberCompleted] = useState(0)
+  const [isAdmin, setIsAdmin] = useContext(AuthContext).isAdmin;
 
   useEffect(() => {
 
@@ -63,43 +64,48 @@ export const TestlistPage = () => {
 
   }, []);
 
-  const updateDeviceProgress = async (booleanValue) => {
+  const updateDeviceProgress = async (booleanValue, oldBooleanValue) => {
     let progress = 0
-    if(booleanValue){
-      setNumberCompleted(numberCompleted+1)
-      progress = parseInt(((numberCompleted + 1)/rows.length)*100)
-    }else{
-      setNumberCompleted(numberCompleted-1)
-      progress = parseInt(((numberCompleted - 1)/rows.length)*100)
+    if (booleanValue !== oldBooleanValue) {
+
+
+      if (booleanValue) {
+        setNumberCompleted(numberCompleted + 1)
+        progress = parseInt(((numberCompleted + 1) / rows.length) * 100)
+      } else {
+        setNumberCompleted(numberCompleted - 1)
+        progress = parseInt(((numberCompleted - 1) / rows.length) * 100)
+      }
+
+      console.log(progress)
+      const response = await client.entities.device.list({
+        filter: {
+          Device: {
+            eq: deviceName
+          }
+        }, readMode: 'NODE_LEDGERED'
+      })
+
+      const updateProgressResponse = await client.entities.device.update({
+        _id: response.items[0]._id,
+        Progress: progress
+      })
+      console.log(updateProgressResponse)
+
+      var index = deviceList.findIndex(item => item._id === response.items[0]._id)
+      deviceList[index].Progress = progress
     }
-    console.log(progress)
-    const response = await client.entities.device.list({
-      filter: {
-        Device: {
-          eq: deviceName
-        }
-      }, readMode: 'NODE_LEDGERED'
-    })
-
-    const updateProgressResponse = await client.entities.device.update({
-      _id: response.items[0]._id,
-      Progress: progress
-    })
-    console.log(updateProgressResponse)
-
-    var index = deviceList.findIndex(item => item._id === response.items[0]._id)
-    deviceList[index].Progress = progress
   }
   const updateDeviceProgressDelete = async (booleanValue) => {
     let progress = 0
-    
-    if(booleanValue){
-      setNumberCompleted(numberCompleted-1)
-      progress = parseInt(((numberCompleted - 1)/(rows.length-1))*100)
-    }else{
-      progress = parseInt(((numberCompleted)/(rows.length-1))*100)
+
+    if (booleanValue) {
+      setNumberCompleted(numberCompleted - 1)
+      progress = parseInt(((numberCompleted - 1) / (rows.length - 1)) * 100)
+    } else {
+      progress = parseInt(((numberCompleted) / (rows.length - 1)) * 100)
     }
-    
+
     console.log(progress)
     const response = await client.entities.device.list({
       filter: {
@@ -156,18 +162,19 @@ export const TestlistPage = () => {
     const updateDeviceResponse = await client.entities.test.update({
       _id: newRow._id,
       Device: newRow.device,
+      OrgAssignment:newRow.orgassignment,
       TestName: newRow.testname,
       TestMethod: newRow.testmethod,
       Notes: newRow.notes,
       Completed: newRow.completed,
-      UpdatedBy: newRow.updatedby
+      UpdatedBy: currentUsersEmail
     })
+    newRow.updatedby = currentUsersEmail
     console.log(updateDeviceResponse)
     const updatedRow = { ...newRow, isNew: false };
+    updateDeviceProgress(newRow.completed, oldRow.completed)
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    
-    updateDeviceProgress(newRow.completed)
-    
+
     return updatedRow;
   };
 
@@ -179,6 +186,14 @@ export const TestlistPage = () => {
   const handleRowModesModelChange = (newRowModesModel) => {
     setRowModesModel(newRowModesModel);
   };
+
+  const canEdit = (param) => {
+    // console.log(param.row.orgassignment)
+    if(!isAdmin){
+      return param.row.orgassignment === currentRole
+    }
+    return true
+  }
 
 
   const columns = [
@@ -205,7 +220,7 @@ export const TestlistPage = () => {
       field: 'orgassignment',
       headerName: 'OrgAssignment',
       width: 150,
-      editable: true,
+      editable: isAdmin,
     },
     {
       field: 'testname',
@@ -236,7 +251,7 @@ export const TestlistPage = () => {
       field: 'updatedby',
       headerName: 'UpdatedBy',
       width: 150,
-      editable: true,
+      editable: false,
     },
     {
       field: 'actions',
@@ -276,12 +291,12 @@ export const TestlistPage = () => {
             onClick={handleEditClick(item.id)}
             color="inherit"
           />,
-          <GridActionsCellItem
+          isAdmin? <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(item)}
             color="inherit"
-          />,
+          /> : <></>,
         ];
       },
     },
@@ -310,6 +325,7 @@ export const TestlistPage = () => {
               }}
               editMode='row'
               rowModesModel={rowModesModel}
+              isCellEditable={(param) => canEdit(param)}
               onRowModesModelChange={handleRowModesModelChange}
               onRowEditStop={handleRowEditStop}
               processRowUpdate={processRowUpdate}
